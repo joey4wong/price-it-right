@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Price It Right</title>
+<style>
+:root{--bg:#f7f7f2;--teal:#3a7d6e;--dteal:#245b50;--pale:#e8f1ee;--ink:#1e1e1e;--red:#c0392b;--grey:#666}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Calibri,Helvetica,Arial,sans-serif}
+#app{max-width:520px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:20px 18px 28px}
+.bar{height:6px;width:36px;background:var(--teal);border-radius:3px;margin:8px 0 10px}
+h1{font-size:34px;line-height:1.1;margin:0 0 8px;font-weight:800}
+p.sub{color:var(--grey);margin:0 0 22px;font-size:17px;line-height:1.4}
+.card{background:#fff;border-radius:20px;padding:22px;box-shadow:0 2px 12px rgba(0,0,0,.07)}
+input{width:100%;font-size:20px;padding:14px 16px;border:2px solid #d5ddd9;border-radius:14px;margin-bottom:14px;outline:none;background:#fff}
+input:focus{border-color:var(--teal)}
+button.main{width:100%;font-size:20px;font-weight:700;color:#fff;background:var(--teal);border:0;border-radius:14px;padding:16px;cursor:pointer}
+button.main:active{background:var(--dteal)}
+.top{display:flex;justify-content:space-between;align-items:center;font-weight:700;color:var(--dteal);margin-bottom:10px}
+.timer{height:10px;background:#dfe7e3;border-radius:6px;overflow:hidden;margin-bottom:16px}
+.timer>div{height:100%;width:100%;background:var(--teal);transform-origin:left;transition:width .1s linear}
+.timer.low>div{background:var(--red)}
+.emoji{font-size:84px;text-align:center;margin:4px 0}
+.name{font-size:24px;font-weight:800;text-align:center;line-height:1.2}
+.desc{text-align:center;color:var(--grey);margin:6px 0 14px;font-size:16px}
+.q{text-align:center;font-weight:700;margin-bottom:14px;color:var(--dteal);font-size:18px}
+.opt{display:block;width:100%;font-size:26px;font-weight:800;background:#fff;color:var(--ink);border:3px solid #d5ddd9;border-radius:16px;padding:18px;margin-bottom:12px;cursor:pointer}
+.opt:active{border-color:var(--teal)}
+.opt.right{background:#dff3e6;border-color:#2e9e5b;color:#1b6b3c}
+.opt.wrong{background:#fbe3e0;border-color:var(--red);color:#8a2217}
+.opt.dim{opacity:.45}
+.fb{text-align:center;font-size:18px;min-height:52px;font-weight:700}
+.big{font-size:64px;font-weight:900;color:var(--teal);text-align:center;margin:8px 0 0}
+.mid{text-align:center;font-size:20px;color:var(--grey);margin-bottom:16px}
+.row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #eee;font-size:16px}
+.row:last-child{border:0}
+.ok{color:#2e9e5b;font-weight:700}.no{color:var(--red);font-weight:700}
+.hint{margin-top:16px;text-align:center;color:var(--grey);font-size:15px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// ---- Items (prices checked 12 Nov 2026; re-check before presenting) ----
+var ITEMS=[
+ {e:"\uD83C\uDF75",n:"Norse Nitro Cold Brew Green Tea with Lemon",d:"12-pack of 355 mL cans",o:["$24","$48","$96"],a:1,real:"$47.99"},
+ {e:"\uD83D\uDC5C",n:"lululemon Everywhere Belt Bag",d:"1 L, regular price",o:["$44","$88","$132"],a:0,real:"$44"},
+ {e:"\uD83E\uDD64",n:"Stanley Quencher H2.0 Tumbler",d:"40 oz, regular price",o:["$19","$39","$59"],a:2,real:"$59"},
+ {e:"\uD83D\uDED2",n:"Costco Gold Star Membership",d:"One year",o:["$25","$65","$130"],a:1,real:"$65"},
+ {e:"\uD83C\uDFA7",n:"Apple AirPods Pro 3",d:"New",o:["$179","$249","$329"],a:2,real:"$329"},
+ {e:"\uD83C\uDFAE",n:"Nintendo Switch 2",d:"Console only",o:["$679.99","$879.99","$1,079.99"],a:0,real:"$679.99"},
+ {e:"\uD83D\uDCF1",n:"iPhone 17",d:"256 GB",o:["$899","$1,299","$1,699"],a:1,real:"$1,299"},
+ {e:"\uD83E\uDDE5",n:"Canada Goose Expedition Parka",d:"Men's",o:["$995","$1,495","$1,995"],a:2,real:"$1,995"}
+];
+var SECS=8, FEEDBACK_MS=1400;
+var app=document.getElementById('app');
+var state={name:"",i:0,score:0,correct:0,log:[],t0:0,timer:null,locked:false,secs:0};
+
+function el(html){app.innerHTML=html}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;")}
+
+function start(){
+  el('<div class="bar"></div><h1>Price It Right</h1><p class="sub">'+ITEMS.length+' products. 3 prices each. '+SECS+' seconds per question. Most correct answers wins; if tied, the faster player wins.</p>'+
+  '<div class="card"><input id="nm" placeholder="Your name" maxlength="20" autocomplete="off"><button class="main" id="go">Start</button></div>'+
+  '<p class="hint">Tip: tap an answer as soon as you know it.</p>');
+  document.getElementById('go').onclick=function(){
+    var v=document.getElementById('nm').value.trim();
+    state={name:v||"Player",i:0,score:0,correct:0,log:[],t0:0,timer:null,locked:false,secs:0};
+    show();
+  };
+}
+
+function show(){
+  var it=ITEMS[state.i];state.locked=false;
+  var opts=it.o.map(function(o,k){return '<button class="opt" data-k="'+k+'">'+esc(o)+'</button>'}).join('');
+  el('<div class="top"><span>Question '+(state.i+1)+' / '+ITEMS.length+'</span><span>Correct '+state.score+'</span></div>'+
+  '<div class="timer" id="tm"><div id="tb"></div></div>'+
+  '<div class="card"><div class="emoji">'+it.e+'</div><div class="name">'+esc(it.n)+'</div><div class="desc">'+esc(it.d)+'</div><div class="q">How much does it cost?</div>'+opts+'<div class="fb" id="fb"></div></div>');
+  var btns=app.querySelectorAll('.opt');
+  for(var b=0;b<btns.length;b++)btns[b].onclick=(function(k){return function(){answer(k)}})(b);
+  state.t0=Date.now();
+  clearInterval(state.timer);
+  state.timer=setInterval(function(){
+    var left=Math.max(0,SECS-(Date.now()-state.t0)/1000);
+    var tb=document.getElementById('tb'),tm=document.getElementById('tm');
+    if(tb)tb.style.width=(left/SECS*100)+'%';
+    if(tm)tm.className='timer'+(left<=3?' low':'');
+    if(left<=0){answer(-1)}
+  },100);
+}
+
+function answer(k){
+  if(state.locked)return;state.locked=true;clearInterval(state.timer);
+  var it=ITEMS[state.i];
+  var left=Math.max(0,SECS-(Date.now()-state.t0)/1000);
+  var ok=(k===it.a),pts=ok?1:0;
+  state.secs+=(SECS-left);state.score+=pts;if(ok)state.correct++;
+  state.log.push({n:it.n,ok:ok,real:it.real,pts:pts,timeout:k<0});
+  var btns=app.querySelectorAll('.opt');
+  for(var b=0;b<btns.length;b++){
+    btns[b].onclick=null;
+    if(b===it.a)btns[b].className='opt right';
+    else if(b===k)btns[b].className='opt wrong';
+    else btns[b].className='opt dim';
+  }
+  var fb=document.getElementById('fb');
+  fb.innerHTML=ok?('<span class="ok">Correct!</span><br>It costs '+esc(it.real)):('<span class="no">'+(k<0?"Time is up":"Not quite")+'</span><br>It costs '+esc(it.real));
+  setTimeout(function(){state.i++;if(state.i<ITEMS.length)show();else finish()},FEEDBACK_MS);
+}
+
+function finish(){
+  var rows=state.log.map(function(l){return '<div class="row"><span>'+esc(l.n)+'</span><span class="'+(l.ok?'ok':'no')+'">'+(l.ok?'correct':(l.timeout?'time':'miss'))+'</span></div>'}).join('');
+  el('<div class="bar"></div><h1>Done, '+esc(state.name)+'!</h1>'+
+  '<div class="card"><div class="mid">Your score</div><div class="big">'+state.score+' / '+ITEMS.length+'</div><div class="mid">Tie-break time: '+state.secs.toFixed(1)+' s (lower wins)</div>'+rows+'</div>'+
+  '<p class="hint">Show this screen to the presenter. Most correct wins; if tied, the lower time wins.</p>'+
+  '<div style="margin-top:14px"><button class="main" id="again">Play again</button></div>');
+  document.getElementById('again').onclick=start;
+}
+start();
+</script>
+</body>
+</html>
