@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Price It Right - Leaderboard</title>
+<style>
+:root{--bg:#f7f7f2;--teal:#3a7d6e;--dteal:#245b50;--pale:#e8f1ee;--ink:#1e1e1e;--grey:#666}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Calibri,Helvetica,Arial,sans-serif}
+#wrap{max-width:1100px;margin:0 auto;padding:28px 32px}
+.head{display:flex;justify-content:space-between;align-items:flex-start;gap:24px}
+.bar{height:6px;width:56px;background:var(--teal);border-radius:3px;margin-bottom:12px}
+h1{font-size:52px;margin:0;font-weight:800}
+.sub{color:var(--grey);font-size:22px;margin-top:6px}
+.join{text-align:center;background:#fff;border-radius:18px;padding:12px 14px;box-shadow:0 2px 10px rgba(0,0,0,.07)}
+.join img{width:150px;height:150px;display:block}
+.join div{font-size:13px;color:var(--grey);margin-top:4px;max-width:150px;word-break:break-all}
+table{width:100%;border-collapse:separate;border-spacing:0 10px;margin-top:18px}
+td,th{padding:14px 18px;font-size:30px;text-align:left}
+th{font-size:16px;color:var(--grey);font-weight:600;text-transform:uppercase;letter-spacing:.06em;padding-top:0;padding-bottom:0}
+tr.row td{background:#fff}
+tr.row td:first-child{border-radius:16px 0 0 16px;width:90px;font-weight:800;color:var(--dteal)}
+tr.row td:last-child{border-radius:0 16px 16px 0}
+tr.top1 td{background:#dff3e6}
+.prog{height:12px;background:#dfe7e3;border-radius:6px;overflow:hidden;width:160px;display:inline-block;vertical-align:middle}
+.prog>i{display:block;height:100%;background:var(--teal)}
+.done{color:#2e9e5b;font-weight:700;font-size:20px;margin-left:10px}
+.sc{font-weight:800}.tm{color:var(--grey);font-size:24px}
+.empty{text-align:center;color:var(--grey);font-size:28px;padding:80px 0}
+.tools{margin-top:24px;font-size:14px;color:var(--grey)}
+.tools button{font-size:14px;padding:6px 12px;border-radius:8px;border:1px solid #bbb;background:#fff;cursor:pointer;margin-right:8px}
+</style></head><body><div id="wrap">
+<div class="head"><div><div class="bar"></div><h1>Price It Right</h1><div class="sub" id="sub">Live leaderboard. Most correct wins; ties go to the faster player.</div></div>
+<div class="join"><img id="qr" alt="QR"><div id="url"></div></div></div>
+<table><thead><tr><th>#</th><th>Player</th><th>Progress</th><th>Correct</th><th>Time</th></tr></thead><tbody id="rows"></tbody></table>
+<div class="empty" id="empty">Waiting for players to join...</div>
+<div class="tools"><button id="reset">Reset board</button><span id="stat"></span></div>
+</div>
+<script>
+var DB='https://price-it-right-game-default-rtdb.firebaseio.com';
+var ROOM=(new URLSearchParams(location.search).get('room')||'class').replace(/[^A-Za-z0-9_-]/g,'').slice(0,30)||'class';
+var TOTAL=8;
+var base=location.href.replace(/board\.html.*$/,'');
+var joinUrl=base+(ROOM==='class'?'':'?room='+ROOM);
+document.getElementById('qr').src='https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=0&data='+encodeURIComponent(joinUrl);
+document.getElementById('url').textContent=joinUrl.replace(/^https?:\/\//,'');
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+function render(data){
+  var arr=[];for(var k in (data||{})){var d=data[k];if(d&&d.name!==undefined)arr.push(d)}
+  arr.sort(function(a,b){return (b.score-a.score)||(a.secs-b.secs)||(a.ts-b.ts)});
+  document.getElementById('empty').style.display=arr.length?'none':'block';
+  document.getElementById('rows').innerHTML=arr.map(function(d,i){
+    var medal=i===0?'\uD83E\uDD47':i===1?'\uD83E\uDD48':i===2?'\uD83E\uDD49':(i+1);
+    return '<tr class="row'+(i===0?' top1':'')+'"><td>'+medal+'</td><td>'+esc(d.name)+'</td><td><span class="prog"><i style="width:'+Math.min(100,d.q/TOTAL*100)+'%"></i></span>'+(d.done?'<span class="done">finished</span>':'')+'</td><td class="sc">'+d.score+' / '+TOTAL+'</td><td class="tm">'+Number(d.secs).toFixed(1)+' s</td></tr>';
+  }).join('');
+  document.getElementById('stat').textContent=arr.length+' players, '+arr.filter(function(d){return d.done}).length+' finished';
+}
+function tick(){
+  fetch(DB+'/rooms/'+ROOM+'.json').then(function(r){return r.json()}).then(render).catch(function(){});
+}
+setInterval(tick,1000);tick();
+document.getElementById('reset').onclick=function(){
+  if(confirm('Clear all players from the board?'))fetch(DB+'/rooms/'+ROOM+'.json',{method:'DELETE'}).then(tick);
+};
+</script></body></html>
