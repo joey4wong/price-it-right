@@ -208,15 +208,14 @@ function events(arr){
   if(prev){
     arr.forEach(function(d){
       var o=prev[d._k],n=esc(d.name),res=d.res||'';
-      if(!o){addEv('j','👋','<b>'+n+'</b> joined the room');return}
-      var ores=o.res||'';
+      var ores='';if(!o)addEv('j','👋','<b>'+n+'</b> joined the room');else ores=o.res||'';
       for(var i=ores.length;i<res.length;i++){
         var it=ITEMS[i]||{e:'',n:''},c=res[i];
         if(c==='c')addEv('c','✅','<b>'+n+'</b> got Q'+(i+1)+' right',it.e+' '+esc(it.n));
         else if(c==='w')addEv('w','❌','<b>'+n+'</b> got Q'+(i+1)+' wrong',it.e+' '+esc(it.n));
         else addEv('t','⏱️','<b>'+n+'</b> ran out of time on Q'+(i+1),it.e+' '+esc(it.n));
       }
-      if(d.done&&!o.done)addEv('j','🏁','<b>'+n+'</b> finished with '+d.score+' / '+TOTAL);
+      if(d.done&&!(o&&o.done))addEv('j','🏁','<b>'+n+'</b> finished with '+d.score+' / '+TOTAL);
     });
   }
   prev=cur;
