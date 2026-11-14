@@ -78,6 +78,7 @@ button.main:active{transform:scale(.98)}
 .r1 .rk,.r1 .nm{color:var(--gold)}
 .r2{background:linear-gradient(100deg,rgba(203,213,225,.15),rgba(203,213,225,.03));border-color:rgba(203,213,225,.35)}
 .r3{background:linear-gradient(100deg,rgba(245,158,107,.16),rgba(245,158,107,.03));border-color:rgba(245,158,107,.35)}
+.side{position:sticky;top:16px}.side .feed{position:static}
 .feed{background:var(--glass);border:1px solid var(--line);border-radius:20px;padding:16px;backdrop-filter:blur(12px);position:sticky;top:16px}
 .feed h3{margin:0 0 10px;font:700 13px Inter,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}
 #fl{display:flex;flex-direction:column;gap:8px;max-height:560px;overflow:hidden}
@@ -85,12 +86,20 @@ button.main:active{transform:scale(.98)}
 .ev.c{border-color:var(--teal)}.ev.w{border-color:var(--red)}.ev.t{border-color:var(--gold)}.ev.j{border-color:var(--cyan)}
 .ev b{font-weight:700}.ev em{font-style:normal;color:var(--mut);font-size:13px;display:block}
 .ev .ic{font-size:20px}
+.hard{background:var(--glass);border:1px solid var(--line);border-radius:20px;padding:16px;backdrop-filter:blur(12px);margin-bottom:16px}
+.hard h3{margin:0 0 10px;font:700 13px Inter,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}
+.hq{padding:10px 0;border-top:1px solid var(--line)}.hq:first-of-type{border-top:0}
+.hq .t{display:flex;gap:10px;align-items:center;font-weight:600;font-size:15px;line-height:1.25}
+.hq .t b{font:800 18px Sora,sans-serif;width:26px;color:var(--red)}
+.hq .t span.n{flex:1;min-width:0}.hq .t span.c{font:800 18px Sora,sans-serif;color:var(--red);white-space:nowrap}.hq .t span.c small{color:var(--mut);font:500 12px Inter,sans-serif}
+.hq .bb{height:6px;border-radius:99px;background:rgba(255,255,255,.08);margin:7px 0 0 36px;overflow:hidden}.hq .bb i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--red));border-radius:99px;transition:width .6s}
+.hq.first .t b{font-size:22px}
 .empty{text-align:center;color:var(--mut);font-size:24px;padding:60px 0}
 .empty .em{font-size:60px;display:block;margin-bottom:8px;animation:bob 2.4s ease-in-out infinite}
 @keyframes bob{50%{transform:translateY(-10px)}}
 .tools{margin-top:24px;opacity:.5}.tools:hover{opacity:1}
 .tools button{font:inherit;font-size:14px;padding:7px 14px;border-radius:10px;border:1px solid var(--line);background:var(--glass);color:var(--ink);cursor:pointer}
-@media(max-width:900px){.cols{grid-template-columns:1fr}.feed{position:static}.row{grid-template-columns:40px minmax(0,1fr) 80px;padding:12px}.dots{grid-column:1/-1;order:5}.tm{display:none}.nm{font-size:20px}.bhead h1.logo{font-size:44px}}
+@media(max-width:900px){.cols{grid-template-columns:1fr}.side{position:static}.row{grid-template-columns:40px minmax(0,1fr) 80px;padding:12px}.dots{grid-column:1/-1;order:5}.tm{display:none}.nm{font-size:20px}.bhead h1.logo{font-size:44px}}
 </style></head><body>
 <div id="wrap">
 <div class="nav" id="nav"><div class="seg"><button id="tp" class="on">Play</button><button id="tb">Live board</button></div></div>
@@ -100,7 +109,7 @@ button.main:active{transform:scale(.98)}
  <div class="join"><img id="qr" alt="QR"><div><b>Scan to play</b><span id="url"></span></div></div></div>
  <div class="stats"><div class="pill"><b id="sp">0</b>In room</div><div class="pill"><b id="sf">0</b>Finished</div></div>
  <div class="cols"><div><div id="rows"></div><div class="empty" id="empty"><span class="em">🛍️</span>Waiting for players to join...</div></div>
- <div class="feed"><h3>Live activity</h3><div id="fl"></div></div></div>
+ <div class="side"><div class="hard"><h3>Most missed questions</h3><div id="hl"><div style="color:var(--mut);font-size:14px">Waiting for answers...</div></div></div><div class="feed"><h3>Live activity</h3><div id="fl"></div></div></div></div>
  <div class="tools"><button id="reset">Reset board</button></div>
 </div>
 </div>
@@ -220,10 +229,19 @@ function events(arr){
   }
   prev=cur;
 }
+function hardest(arr){
+  var w=[],a=[],i;for(i=0;i<TOTAL;i++){w[i]=0;a[i]=0}
+  arr.forEach(function(d){var r=d.res||'';for(i=0;i<r.length&&i<TOTAL;i++){a[i]++;if(r[i]!=='c')w[i]++}});
+  var idx=[];for(i=0;i<TOTAL;i++)if(w[i]>0)idx.push(i);
+  idx.sort(function(x,y){return (w[y]-w[x])||(w[y]/a[y]-w[x]/a[x])||(x-y)});
+  var h=$('hl');
+  if(!idx.length){h.innerHTML='<div style="color:var(--mut);font-size:14px">No wrong answers yet</div>';return}
+  h.innerHTML=idx.slice(0,3).map(function(q,k){var it=ITEMS[q];return '<div class="hq'+(k===0?' first':'')+'"><div class="t"><b>'+(k+1)+'</b><span class="n">'+it.e+' Q'+(q+1)+' '+esc(it.n)+'</span><span class="c">'+w[q]+' <small>of '+a[q]+' missed</small></span></div><div class="bb"><i style="width:'+Math.round(w[q]/a[q]*100)+'%"></i></div></div>'}).join('');
+}
 function render(data){
   var arr=[];for(var k in (data||{})){var d=data[k];if(d&&d.name!==undefined){d._k=k;arr.push(d)}}
   arr.sort(function(a,b){return (b.score-a.score)||(a.secs-b.secs)||(a.ts-b.ts)});
-  events(arr);
+  events(arr);hardest(arr);
   $('empty').style.display=arr.length?'none':'block';
   $('sp').textContent=arr.length;$('sf').textContent=arr.filter(function(d){return d.done}).length;
   var seen={};
