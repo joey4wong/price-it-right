@@ -51,3 +51,6 @@ function timsSVG(n,h){
   '<linearGradient id="cbg" x1="0" x2="1"><stop offset="0" stop-color="#3a241b"/><stop offset=".55" stop-color="#22140f"/><stop offset="1" stop-color="#140b08"/></linearGradient>'+
   '<linearGradient id="lid" x1="0" x2="1"><stop offset="0" stop-color="#9aa3ad"/><stop offset=".5" stop-color="#e6eaee"/><stop offset="1" stop-color="#8b949e"/></linearGradient></defs>'+g+'</svg>';
 }
+function phImg(label,h,w){return '<div class="ph" style="height:'+(h||180)+'px;width:'+(w||'78%')+'">'+esc(label)+'<small>image coming soon</small></div>'}
+function pic(item,h){return item.img?'<img src="'+item.img+'" alt="" draggable="false" style="max-height:'+(h||190)+'px;max-width:85%;filter:drop-shadow(0 12px 18px rgba(0,0,0,.45))">':phImg(item.ph||item.nm,h)}
+function once(key){try{return JSON.parse(localStorage.getItem(key)||'null')}catch(e){return null}}

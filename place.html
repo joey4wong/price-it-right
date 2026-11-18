@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Where Does It Belong? - Game 5</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css?v=5">
+<style>
+.prog{display:flex;gap:6px;margin:4px 0 14px}.prog i{flex:1;height:6px;border-radius:9px;background:rgba(255,255,255,.12)}.prog i.on{background:linear-gradient(90deg,var(--teal),var(--cyan))}
+.item{text-align:center}.item .pic{height:190px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.item .pic img{max-height:190px;max-width:85%;filter:drop-shadow(0 12px 18px rgba(0,0,0,.45))}
+.nm{font:700 24px/1.25 Sora,Inter,sans-serif}.ds{color:var(--mut);margin:4px 0 14px;font-size:15px}
+.q{color:var(--teal);font-weight:700;margin:4px 0 10px}
+.shelf{display:flex;align-items:center;gap:14px;width:100%;text-align:left;font:700 18px Inter,sans-serif;color:var(--ink);background:rgba(255,255,255,.07);border:2px solid var(--line);border-radius:16px;padding:13px 16px;margin-bottom:10px;cursor:pointer}
+.shelf small{display:block;font:500 13px Inter,sans-serif;color:var(--mut);margin-top:2px}
+.shelf .ic{font-size:26px;width:34px;text-align:center}
+.shelf.on{border-color:var(--teal);background:rgba(52,211,168,.18)}
+</style></head><body><div id="wrap"></div>
+<script src="shared.js?v=5"></script>
+<script>
+if(location.hash==='#board')location.replace('dashboard.html'+SEARCH);
+var COL=ROOM+'__place',KEY='pir_pl_'+ROOM;
+var CARDS=[
+ {k:'gum',ph:'Chewing gum',nm:'Chewing gum',ds:'A pack of mint gum'},
+ {k:'washer',ph:'Washing machine',nm:'Washing machine',ds:'Front-load, mid-range brand'},
+ {k:'infiniti',ph:'Infiniti car',nm:'Infiniti car',ds:'Luxury car brand'},
+ {k:'coke',ph:'Coca-Cola',nm:'Coca-Cola',ds:'A 355 mL can'},
+ {k:'salon',ph:'Salon shampoo',nm:'Professional salon shampoo',ds:'High-end hair care brand'},
+ {k:'lulu',img:'q2.png',nm:'lululemon Everywhere Belt Bag',ds:'1 L'}
+];
+var SHELVES=[['int','🏪','Everywhere','Any store, gas station, vending machine'],['sel','🛒','Some stores','Only chosen stores'],['exc','💎','Only a few places','One dealer or brand store in town']];
+var wrap=$('wrap'),st=once(KEY);
+function save(){localStorage.setItem(KEY,JSON.stringify(st))}
+function boot(){
+  if(st&&st.pid){api(COL+'/'+st.pid).then(function(d){if(d)resume();else{localStorage.removeItem(KEY);st=null;intro()}}).catch(resume);return}
+  intro();
+}
+function intro(){
+  wrap.innerHTML='<span class="kicker"><i></i>Game 5</span><br><h1 class="logo">Where Does It Belong?</h1>'+
+   '<p class="sub">You run the store shelves. For each product, choose where it should be sold: everywhere, some stores, or only a few places.</p>'+
+   '<div class="card"><input id="nm" placeholder="Your name" maxlength="20" autocomplete="off"><button class="main" id="go">Start</button></div>';
+  $('go').onclick=function(){var v=$('nm').value.trim()||'Player';this.disabled=true;
+    st={pid:pid(),name:v,a:{},i:0};
+    api(COL+'/'+st.pid,'PUT',rec({name:v,a:{}})).then(function(){save();resume()}).catch(function(){$('go').disabled=false})};
+}
+function resume(){
+  if(st.i>=CARDS.length){wrap.innerHTML='<div class="card center fade" style="margin-top:40px"><h1 class="logo">All done!</h1><p class="sub">Thanks. Look at the big screen.</p></div>';return}
+  var c=CARDS[st.i],bars='';for(var i=0;i<CARDS.length;i++)bars+='<i class="'+(i<st.i?'on':'')+'"></i>';
+  wrap.innerHTML='<div class="prog">'+bars+'</div><div class="card fade"><div class="item"><div class="pic">'+pic(c,180)+'</div><div class="nm">'+esc(c.nm)+'</div><div class="ds">'+esc(c.ds)+'</div></div>'+
+   '<div class="q">Where should it be sold?</div>'+SHELVES.map(function(s){return '<button class="shelf" data-v="'+s[0]+'"><span class="ic">'+s[1]+'</span><span>'+s[2]+'<small>'+s[3]+'</small></span></button>'}).join('')+'</div>';
+  var bs=wrap.querySelectorAll('.shelf'),lock=false;
+  for(var j=0;j<bs.length;j++)bs[j].onclick=function(){if(lock)return;lock=true;this.className='shelf on';var v=this.getAttribute('data-v');
+    st.a[c.k]=v;st.i++;save();var p={};p['a/'+c.k]=v;p.q=st.i;p.done=st.i>=CARDS.length;api(COL+'/'+st.pid,'PATCH',p).catch(function(){});setTimeout(resume,280)};
+}
+boot();
+</script></body></html>

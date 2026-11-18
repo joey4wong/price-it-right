@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Swipe to Shop - Price It Right</title>
+<title>Swipe to Shop - Game 4</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared.css?v=4">
+<link rel="stylesheet" href="shared.css?v=5">
 <style>
 .prog{display:flex;gap:6px;margin:4px 0 14px}.prog i{flex:1;height:6px;border-radius:9px;background:rgba(255,255,255,.12)}.prog i.on{background:linear-gradient(90deg,var(--teal),var(--cyan))}
 .deck{position:relative;height:500px;touch-action:pan-y}
@@ -46,27 +46,27 @@
 .big-title{font:800 40px Sora,sans-serif;margin:26px 0 0;animation:in .5s both}
 @media(max-width:900px){.reveal{grid-template-columns:1fr}}
 </style></head><body><div id="wrap"></div>
-<script src="shared.js?v=4"></script>
+<script src="shared.js?v=5"></script>
 <script>
 var BOARD=location.hash==='#board';
 var SWP=ROOM+'__swipe';
 var CARDS=[
- {k:'ld',tims:1,nm:'Tims Reserve Cold Brew',ds:'Single 355 mL can',pr:function(g){return g?'$4.00':'$3.99'}},
+ {k:'ld',ph:'Insulated tumbler',nm:'Insulated tumbler',ds:'30 oz, keeps drinks cold for 24 hours',pr:function(g){return g?'$40.00':'$39.99'}},
  {k:'f1',img:'q1.png',nm:'Norse Nitro Green Tea',ds:'12-pack of 355 mL cans',pr:function(){return '$47.99'}},
- {k:'ref',tims:4,nm:'Tims Reserve Cold Brew',ds:'4-pack',pr:function(g){return g?'<s>$17.99</s>$13.49<br><span class="sale">SALE</span>':'$13.49'}},
+ {k:'ref',ph:'Wireless earbuds',nm:'Wireless earbuds',ds:'Noise cancelling, 30-hour battery',pr:function(g){return g?'<s>$59.99</s>$44.99<br><span class="sale">SALE</span>':'$44.99'}},
  {k:'f2',img:'q2.png',nm:'lululemon Everywhere Belt Bag',ds:'1 L',pr:function(){return '$44'}},
- {k:'cmp',menu:1,nm:'Tims Reserve Cold Brew',ds:'Which one would you buy?'},
- {k:'f3',img:'q3.png',nm:'Stanley Quencher H2.0',ds:'40 oz tumbler',pr:function(){return '$59'}}
+ {k:'cmp',menu:1,ph:'Bubble tea',nm:'Bubble tea',ds:'Which size would you buy?'},
+ {k:'f3',img:'q4.png',nm:'Costco Gold Star Membership',ds:'One year',pr:function(){return '$65'}}
 ];
 var wrap=$('wrap');
 if(BOARD)location.replace("dashboard.html"+SEARCH);else player();
 
 /* ---------------- player ---------------- */
 function player(){
-  var st=JSON.parse(localStorage.getItem('pir_sw_'+ROOM)||'null');
-  if(st&&st.pid){api(SWP+'/'+st.pid).then(function(d){if(d)resume(st);else{localStorage.removeItem('pir_sw_'+ROOM);player()}}).catch(function(){resume(st)});return}
+  var st=JSON.parse(localStorage.getItem('pir_sw4_'+ROOM)||'null');
+  if(st&&st.pid){api(SWP+'/'+st.pid).then(function(d){if(d)resume(st);else{localStorage.removeItem('pir_sw4_'+ROOM);player()}}).catch(function(){resume(st)});return}
   var n=myName();
-  wrap.innerHTML='<span class="kicker"><i></i>Round 2</span><br><h1 class="logo">Swipe to Shop</h1>'+
+  wrap.innerHTML='<span class="kicker"><i></i>Game 4</span><br><h1 class="logo">Swipe to Shop</h1>'+
    '<p class="sub">You are shopping. For each item, would you buy it at this price? Swipe right to buy, left to pass. No right or wrong answers.</p>'+
    '<div class="card"><input id="nm" placeholder="Your name" maxlength="20" autocomplete="off" value=""><button class="main" id="go">Start shopping</button></div>';
   $('go').onclick=function(){
@@ -75,20 +75,20 @@ function player(){
       var idx=d?Object.keys(d).length:0;
       var g={ld:idx%2,ref:((idx>>1)+idx)%2,cmp:(idx>>1)%2};
       var s={pid:pid(),name:v,g:g,a:{},i:0};
-      localStorage.setItem('pir_sw_'+ROOM,JSON.stringify(s));
+      localStorage.setItem('pir_sw4_'+ROOM,JSON.stringify(s));
       return api(SWP+'/'+s.pid,'PUT',rec({name:v,g:g,a:{}})).then(function(){resume(s)});
     }).catch(function(){$('go').disabled=false});
   };
 }
-function save(s){localStorage.setItem('pir_sw_'+ROOM,JSON.stringify(s))}
+function save(s){localStorage.setItem('pir_sw4_'+ROOM,JSON.stringify(s))}
 function resume(s){
   if(s.i>=CARDS.length){thanks();return}
   var c=CARDS[s.i],g=s.g[c.k]||0,html;
-  var pic=c.img?'<img src="'+c.img+'" alt="" draggable="false">':timsSVG(c.tims||1,c.tims===4?110:190);
+  var pic=c.img?'<img src="'+c.img+'" alt="" draggable="false">':phImg(c.ph,180);
   if(c.menu){
-    var opts=[['single','Single can','$3.99'],['four','4-pack','$13.49']];
-    if(g)opts.push(['twelve','12-pack','$36.99']);
-    html='<div class="sc"><div class="pic" style="height:140px">'+timsSVG(g?12:4,g?130:90)+'</div><div class="nm">'+c.nm+'</div><div class="ds">'+c.ds+'</div><div class="menu">'+
+    var opts=[['small','Small','$4.99'],['medium','Medium','$5.99']];
+    if(g)opts.push(['large','Large','$6.99']);
+    html='<div class="sc"><div class="pic" style="height:140px">'+phImg(c.ph,130)+'</div><div class="nm">'+c.nm+'</div><div class="ds">'+c.ds+'</div><div class="menu">'+
       opts.map(function(o){return '<button data-v="'+o[0]+'">'+o[1]+'<span>'+o[2]+'</span></button>'}).join('')+'<button class="none" data-v="none">None of these</button></div></div>';
   }else{
     html='<div class="sc" id="sc"><div class="stamp buy" id="sb">BUY</div><div class="stamp pass" id="sp">PASS</div><div class="pic">'+pic+'</div><div class="nm">'+c.nm+'</div><div class="ds">'+c.ds+'</div><div class="price">'+c.pr(g)+'</div></div>';
@@ -120,7 +120,7 @@ function thanks(){
 /* ---------------- board ---------------- */
 function board(){
   wrap.className='wide';
-  wrap.innerHTML=stepsHTML('swipe')+'<div class="bhead"><div><span class="kicker"><i></i>Round 2</span><br><h1 class="logo">Swipe to Shop</h1><p class="sub" style="margin:0">Would you buy it at this price? Swipe right to buy, left to pass.</p></div>'+
+  wrap.innerHTML=stepsHTML('swipe')+'<div class="bhead"><div><span class="kicker"><i></i>Game 4</span><br><h1 class="logo">Swipe to Shop</h1><p class="sub" style="margin:0">Would you buy it at this price? Swipe right to buy, left to pass.</p></div>'+
   '<div><span class="pill"><b id="np">0</b>Shopping</span> <span class="pill"><b id="nd">0</b>Done</span></div></div>'+
   '<div id="body"><div class="chips" id="chips"></div><div style="margin-top:26px"><button class="big" id="rv">Reveal results</button></div></div>'+
   '<div class="tools"><button onclick="goBoard(\'auction\')">Next round: Falling Price</button><button onclick="resetAll()">Reset all rounds</button></div>';

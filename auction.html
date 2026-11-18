@@ -1,72 +1,68 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Falling Price - Price It Right</title>
+<title>Falling Price - Game 3</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared.css?v=4">
+<link rel="stylesheet" href="shared.css?v=5">
 <style>
 .pnum{font:800 92px/1 Sora,Inter,sans-serif;letter-spacing:-.03em;font-variant-numeric:tabular-nums;margin:10px 0}
 .pnum.cd{color:var(--gold)}
 #buy{width:100%;font:900 40px Sora,Inter,sans-serif;padding:26px;border-radius:24px;border:0;color:#04241c;background:linear-gradient(100deg,var(--teal),var(--cyan));box-shadow:0 14px 40px rgba(52,211,168,.35);cursor:pointer}
 #buy:active{transform:scale(.97)}
-.msg{font:700 24px Sora,sans-serif;margin-top:10px}
-.rules{text-align:left;color:var(--mut);font-size:16px;line-height:1.5;margin:0 0 16px;padding-left:20px}
-.rules b{color:var(--ink)}
+.rules{text-align:left;color:var(--mut);font-size:16px;line-height:1.5;margin:0 0 16px;padding-left:20px}.rules b{color:var(--ink)}
+.tix{width:100%;max-width:420px;border-radius:12px;box-shadow:0 14px 30px rgba(0,0,0,.45);display:block;margin:0 auto}
+.opt{display:block;width:100%;font:700 18px Inter,sans-serif;color:var(--ink);background:rgba(255,255,255,.07);border:2px solid var(--line);border-radius:14px;padding:14px;margin-bottom:9px;cursor:pointer}
 </style></head><body><div id="wrap"></div>
-<script src="shared.js?v=4"></script>
+<script src="shared.js?v=5"></script>
 <script>
 if(location.hash==='#board')location.replace('dashboard.html'+SEARCH);
-var AUC=ROOM+'__auction',KEY='pir_au2_'+ROOM;
-var P0=8,P1=1,DUR=30000,CD=3000;
-var wrap=$('wrap');
-function money(p){return '$'+p.toFixed(2)}
-function priceAt(ms){var e=ms-CD;if(e<0)return P0;return Math.max(P1,Math.round((P0-(P0-P1)*e/DUR)*100)/100)}
-var st=null;try{st=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){}
+var AUC=ROOM+'__auction',KEY='pir_au3_'+ROOM;
+var P0=400,P1=40,DUR=30000,CD=3000,TIX='<img class="tix" src="ts.jpg" alt="">';
+var wrap=$('wrap'),st=once(KEY);
+function money(p){return '$'+Math.round(p)}
+function priceAt(ms){var e=ms-CD;if(e<0)return P0;return Math.max(P1,Math.round(P0-(P0-P1)*e/DUR))}
+function save(){localStorage.setItem(KEY,JSON.stringify(st))}
 function check(){
   if(!st||!st.pid){intro();return}
-  api(AUC+'/'+st.pid).then(function(d){if(!d){localStorage.removeItem(KEY);st=null;intro()}else result()}).catch(intro);
+  api(AUC+'/'+st.pid).then(function(d){if(!d){localStorage.removeItem(KEY);st=null;intro();return}
+    if(!st.res){st.res=d.p?{p:d.p}:{missed:true};save();if(!d.p&&!d.missed)api(AUC+'/'+st.pid,'PATCH',{missed:true,done:true,q:1})}
+    result()}).catch(intro);
 }
 function intro(){
-  wrap.innerHTML='<span class="kicker"><i></i>Round 3</span><br><h1 class="logo">Falling Price</h1>'+
-   '<div class="center" style="margin:6px 0 10px">'+timsSVG(1,140)+'</div>'+
-   '<ul class="rules"><li>Tims Reserve Cold Brew starts at <b>$8.00</b> and the price keeps falling.</li><li>Tap <b>BUY</b> at the price you would really pay.</li><li>Careful: the can <b>sells out at a random moment</b>. Wait too long and you miss it.</li><li>One try only.</li></ul>'+
-   '<div class="card"><input id="nm" placeholder="Your name" maxlength="20" autocomplete="off" value=""><button class="main" id="go">Start</button></div>';
-  $('go').onclick=function(){
-    var v=$('nm').value.trim()||'Player';setName(v);this.disabled=true;
-    var cut=Math.round((1.5+Math.random()*3)*100)/100;
-    st={pid:pid(),name:v,cut:cut};
-    api(AUC+'/'+st.pid,'PUT',rec({name:v,cut:cut})).then(function(){localStorage.setItem(KEY,JSON.stringify(st));run()}).catch(function(){$('go').disabled=false});
-  };
+  wrap.innerHTML='<span class="kicker"><i></i>Game 3</span><br><h1 class="logo">Falling Price</h1><div style="margin:4px 0 14px">'+TIX+'</div>'+
+   '<ul class="rules"><li>A front-row ticket to see an artist you love. It starts at <b>$400</b> and the price keeps falling.</li><li>Tap <b>BUY</b> at the price you would really pay.</li><li>Careful: tickets <b>sell out at a random moment</b>. Wait too long and you miss it.</li><li>One try only.</li></ul>'+
+   '<div class="card"><input id="nm" placeholder="Your name" maxlength="20" autocomplete="off"><button class="main" id="go">Start</button></div>';
+  $('go').onclick=function(){var v=$('nm').value.trim()||'Player';this.disabled=true;
+    st={pid:pid(),name:v,cut:Math.round(75+Math.random()*150)};
+    api(AUC+'/'+st.pid,'PUT',rec({name:v,cut:st.cut})).then(function(){save();run()}).catch(function(){$('go').disabled=false})};
 }
 function run(){
-  wrap.innerHTML='<div class="center"><span class="kicker"><i></i>Round 3 · Falling Price</span><div style="margin-top:14px">'+timsSVG(1,150)+'</div>'+
-   '<div class="sub" style="margin:6px 0 0">Tims Reserve Cold Brew, 355 mL</div><div class="pnum" id="pn">'+money(P0)+'</div><div id="act" style="margin-top:14px"></div></div>';
+  wrap.innerHTML='<div class="center"><span class="kicker"><i></i>Game 3 · Falling Price</span><div style="margin-top:14px">'+TIX+'</div>'+
+   '<div class="sub" style="margin:8px 0 0">Front-row concert ticket</div><div class="pnum" id="pn">'+money(P0)+'</div><div style="margin-top:10px"><button id="buy" disabled style="opacity:.4">BUY</button></div></div>';
   var t0=Date.now(),done=false;
-  $('act').innerHTML='<button id="buy" disabled style="opacity:.4">BUY</button>';
-  function finish(o){if(done)return;done=true;clearInterval(tm);
-    st.res=o;localStorage.setItem(KEY,JSON.stringify(st));
-    api(AUC+'/'+st.pid,'PATCH',o.p?{p:o.p,done:true,q:1}:{missed:true,done:true,q:1}).catch(function(){});
-    result()}
-  $('buy').onclick=function(){var p=priceAt(Date.now()-t0);if(Date.now()-t0>=CD)finish({p:p})};
-  var tm=setInterval(function(){
-    var el=Date.now()-t0,pn=$('pn');
+  function finish(o){if(done)return;done=true;clearInterval(tm);st.res=o;save();
+    api(AUC+'/'+st.pid,'PATCH',o.p?{p:o.p,done:true,q:1}:{missed:true,done:true,q:1}).catch(function(){});result()}
+  $('buy').onclick=function(){var el=Date.now()-t0;if(el>=CD)finish({p:priceAt(el)})};
+  var tm=setInterval(function(){var el=Date.now()-t0,pn=$('pn');
     if(el<CD){pn.textContent=Math.ceil((CD-el)/1000);pn.className='pnum cd';return}
     var b=$('buy');if(b.disabled){b.disabled=false;b.style.opacity=1}
-    var p=priceAt(el);pn.textContent=money(p);pn.className='pnum';
-    if(p<=st.cut)finish({missed:true,at:st.cut});
-  },50);
+    var p=priceAt(el);pn.textContent=money(p);pn.className='pnum';if(p<=st.cut)finish({missed:true})},50);
 }
 function result(){
-  var r=st&&st.res;
-  api(AUC+'/'+st.pid).then(function(d){
-    if(!r&&d){r=d.p?{p:d.p}:(d.missed?{missed:true}:null)}
-    if(!r){r={missed:true};st.res=r;localStorage.setItem(KEY,JSON.stringify(st));api(AUC+'/'+st.pid,'PATCH',{missed:true,done:true,q:1})}
-    wrap.innerHTML='<div class="card center fade" style="margin-top:40px">'+timsSVG(1,130)+
-     (r.p?'<h1 class="logo">You bought it!</h1><div class="pnum" style="font-size:64px">'+money(r.p)+'</div><p class="sub">That is what Tims Reserve is worth to you.</p>'
-         :'<h1 class="logo">Sold out!</h1><p class="sub">It sold out at '+money(st.cut)+' before you tapped BUY. Waiting has a cost.</p>')+
-     '<p class="hint">Thanks for playing. Look at the big screen.</p></div>';
-  });
+  var r=st.res;
+  wrap.innerHTML='<div class="card center fade" style="margin-top:24px">'+TIX+
+   (r.p?'<h1 class="logo" style="margin-top:14px">You bought it!</h1><div class="pnum" style="font-size:64px">'+money(r.p)+'</div><p class="sub">That is what the ticket is worth to you.</p>'
+       :'<h1 class="logo" style="margin-top:14px">Sold out!</h1><p class="sub">The tickets sold out at '+money(st.cut)+' before you tapped BUY. Waiting has a cost.</p>')+'</div><div id="cgq"></div>';
+  cgAsk();
+}
+function cgAsk(){
+  if(st.cg){$('cgq').innerHTML='<p class="hint">Thanks for playing. Look at the big screen.</p>';return}
+  $('cgq').innerHTML='<div class="card fade" style="margin-top:16px"><div style="font:700 18px Sora,sans-serif">One last question</div><img src="q8.png" alt="" style="display:block;margin:8px auto;max-height:150px">'+
+   '<p class="sub" style="margin:4px 0 12px">Canada Goose cuts its $1,995 parka to <b style="color:#fbbf24">half price</b>, for good. Would you want it...</p>'+
+   [['more','More'],['same','The same'],['less','Less']].map(function(o){return '<button class="opt" data-v="'+o[0]+'">'+o[1]+'</button>'}).join('')+'</div>';
+  var bs=$('cgq').querySelectorAll('button');
+  for(var i=0;i<bs.length;i++)bs[i].onclick=function(){st.cg=this.getAttribute('data-v');save();api(AUC+'/'+st.pid,'PATCH',{cg:st.cg}).catch(function(){});cgAsk()};
 }
 check();
 </script></body></html>

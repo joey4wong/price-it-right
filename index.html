@@ -45,6 +45,8 @@ button.main:active{transform:scale(.98)}
 .opt.wrong{background:rgba(251,113,133,.2);border-color:var(--red);color:#fecdd3}
 .opt.dim{opacity:.4}
 .fb{text-align:center;font-size:18px;min-height:52px;font-weight:600}
+.why{margin-top:14px;display:flex;flex-direction:column;gap:8px}.why .wq{color:var(--teal);font-weight:700;font-size:16px;margin-bottom:2px}
+.why button{font:600 16px Inter,sans-serif;color:var(--ink);background:rgba(255,255,255,.07);border:1.5px solid var(--line);border-radius:12px;padding:12px;cursor:pointer}.why button.on{border-color:var(--teal);background:rgba(52,211,168,.2)}
 .big{font:800 64px Sora,Inter,sans-serif;color:var(--teal);text-align:center;margin:8px 0 0}
 .mid{text-align:center;font-size:18px;color:var(--mut);margin-bottom:16px}
 .rw{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:15px}
@@ -120,7 +122,7 @@ button.main:active{transform:scale(.98)}
  <div class="tools"><button id="nextr" style="border-color:rgba(52,211,168,.6)">Next round: Swipe to Shop</button><button id="reset">Reset all rounds</button></div>
 </div>
 </div>
-<script src="shared.js?v=4"></script>
+<script src="shared.js?v=5"></script>
 <script>
 var ITEMS=[
  {e:"\uD83C\uDF75",img:"q1.png",n:"Norse Nitro Cold Brew Green Tea with Lemon",d:"12-pack of 355 mL cans",o:["$24","$48","$96"],a:1,real:"$47.99"},
@@ -156,7 +158,7 @@ var state={name:"",i:0,score:0,log:[],t0:0,timer:null,locked:false,secs:0};
 function sync(done){
   if(!state.pid)return;
   var res=state.log.map(function(l){return l.timeout?'t':l.ok?'c':'w'}).join('');
-  try{fetch(DB+'/rooms/'+ROOM+'/'+state.pid+'.json',{method:'PUT',keepalive:true,body:JSON.stringify({name:state.name,score:state.score,secs:Math.round(state.secs*10)/10,q:state.log.length,res:res,done:!!done,ts:Date.now()})}).catch(function(){})}catch(e){}
+  try{fetch(DB+'/rooms/'+ROOM+'/'+state.pid+'.json',{method:'PUT',keepalive:true,body:JSON.stringify({name:state.name,score:state.score,secs:Math.round(state.secs*10)/10,q:state.log.length,res:res,why:state.log.map(function(l){return l.why||'-'}).join(''),done:!!done,ts:Date.now()})}).catch(function(){})}catch(e){}
 }
 function el(h){app.innerHTML=h}
 var R1='pir_r1_'+ROOM;
@@ -213,7 +215,10 @@ function answer(k){
   var btns=app.querySelectorAll('.opt');
   for(var b=0;b<btns.length;b++){btns[b].onclick=null;btns[b].className='opt '+(b===it.a?'right':b===k?'wrong':'dim')}
   $('fb').innerHTML=ok?('<span class="ok">Correct!</span><br>It costs '+esc(it.real)):('<span class="no">'+(k<0?"Time is up":"Not quite")+'</span><br>It costs '+esc(it.real));
-  setTimeout(function(){state.i++;if(state.i<TOTAL)show();else finish()},FEEDBACK_MS);
+  var W=[['c','Cost to make it'],['p','Compared with similar products'],['u','What it is worth to me']];
+  var wb=document.createElement('div');wb.className='why';wb.innerHTML='<div class="wq">How did you guess?</div>'+W.map(function(w){return '<button data-w="'+w[0]+'">'+w[1]+'</button>'}).join('');
+  $('fb').appendChild(wb);
+  var wbs=wb.querySelectorAll('button');for(var j=0;j<wbs.length;j++)wbs[j].onclick=function(){if(state.wlock)return;state.wlock=true;state.log[state.log.length-1].why=this.getAttribute('data-w');this.className='on';sync(state.log.length>=TOTAL);save(false);setTimeout(function(){state.wlock=false;state.i++;if(state.i<TOTAL)show();else finish()},250)};
 }
 function finish(){
   navShow(true);
