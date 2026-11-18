@@ -58,7 +58,7 @@ section .sub{margin:0 0 14px}
 </style></head><body><div id="wrap" class="wide">
 <div class="top"><div><span class="kicker"><i></i>Live results</span><br><h1 class="logo">Price It, Place It</h1></div>
 <div class="navp"><a href="#g1">1 Set a price</a><a href="#g2">2 Sensitivity</a><a href="#g3">3 Strategies</a><a href="#g4">4 Psychology</a><a href="#g5">5 Distribution</a></div></div>
-<div class="joins" id="joins"></div>
+
 
 <section id="g1"><h2><span class="num">1</span>Price It Right<span class="cpt">Three ways to set a price</span></h2><p class="sub">Most correct wins. Ties go to the faster player.</p>
  <div class="grid2"><div class="box"><h3>Leaderboard</h3><div class="lb" id="lb"></div></div>
@@ -75,13 +75,12 @@ section .sub{margin:0 0 14px}
 <script>
 var base=location.href.replace(/[?#].*$/,'').replace(/dashboard\.html$/,'');
 var G=[['Game 1','Price It Right','',ROOM],['Game 2','Price Hike','hike.html',ROOM+'__hike'],['Game 3','Falling Price','auction.html',ROOM+'__auction'],['Game 4','Swipe to Shop','swipe.html',ROOM+'__swipe'],['Game 5','Where Does It Belong?','place.html',ROOM+'__place']];
-$('joins').innerHTML=G.map(function(g,i){var u=base+g[2]+SEARCH;return '<div class="jc"><img src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=0&data='+encodeURIComponent(u)+'" alt=""><div class="k">'+g[0]+'</div><div class="t">'+g[1]+'</div><div class="n"><b id="c'+i+'">0</b> playing · <b id="d'+i+'">0</b> done</div></div>'}).join('');
 function rvd(n){return sessionStorage.getItem('pir_rv'+n+'_'+ROOM)==='1'}
 function reveal(n){sessionStorage.setItem('pir_rv'+n+'_'+ROOM,'1');last['v'+n]=null;tick()}
 function veil(n,txt){return rvd(n)?'':'<div class="veil"><p>'+(txt||'Hidden until you reveal it.')+'</p><button class="big" onclick="reveal('+n+')">Reveal results</button></div>'}
 var last={};function set(id,h){if(last[id]!==h){$(id).innerHTML=h;last[id]=h}}
 function arr(d){var a=[];for(var k in (d||{}))if(d[k]&&d[k].name!==undefined)a.push(d[k]);return a}
-function cnt(i,a){$('c'+i).textContent=a.length;$('d'+i).textContent=a.filter(function(p){return p.done}).length}
+function cnt(i,a){}
 function pct(y,n){return n?Math.round(y/n*100):0}
 function bar(label,y,n,cls,extra){var p=pct(y,n);return '<div class="bar '+(cls||'')+'"><div class="t"><span>'+label+(extra||'')+'</span><span>'+p+'% <small>('+y+' of '+n+')</small></span></div><div class="b"><i style="width:'+p+'%"></i></div></div>'}
 var armT=null;

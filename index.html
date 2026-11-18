@@ -214,7 +214,7 @@ function answer(k){
   sync(state.log.length>=TOTAL);save(false);
   var btns=app.querySelectorAll('.opt');
   for(var b=0;b<btns.length;b++){btns[b].onclick=null;btns[b].className='opt '+(b===it.a?'right':b===k?'wrong':'dim')}
-  $('fb').innerHTML=ok?('<span class="ok">Correct!</span><br>It costs '+esc(it.real)):('<span class="no">'+(k<0?"Time is up":"Not quite")+'</span><br>It costs '+esc(it.real));
+  $('fb').innerHTML='';
   var W=[['c','Cost to make it'],['p','Compared with similar products'],['u','What it is worth to me']];
   var wb=document.createElement('div');wb.className='why';wb.innerHTML='<div class="wq">How did you guess?</div>'+W.map(function(w){return '<button data-w="'+w[0]+'">'+w[1]+'</button>'}).join('');
   $('fb').appendChild(wb);
