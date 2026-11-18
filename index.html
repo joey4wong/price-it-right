@@ -120,7 +120,7 @@ button.main:active{transform:scale(.98)}
  <div class="tools"><button id="nextr" style="border-color:rgba(52,211,168,.6)">Next round: Swipe to Shop</button><button id="reset">Reset all rounds</button></div>
 </div>
 </div>
-<script src="shared.js?v=3"></script>
+<script src="shared.js?v=4"></script>
 <script>
 var ITEMS=[
  {e:"\uD83C\uDF75",img:"q1.png",n:"Norse Nitro Cold Brew Green Tea with Lemon",d:"12-pack of 355 mL cans",o:["$24","$48","$96"],a:1,real:"$47.99"},
@@ -220,7 +220,7 @@ function finish(){
   var rows=state.log.map(function(l){return '<div class="rw"><span>'+esc(l.n)+'</span><span class="'+(l.timeout?'tmo':l.ok?'ok':'no')+'">'+(l.ok?'correct':(l.timeout?'time':'miss'))+'</span></div>'}).join('');
   el('<h1 class="logo">Done, '+esc(state.name)+'!</h1>'+
   '<div class="card"><div class="mid">Your score</div><div class="big">'+state.score+' / '+TOTAL+'</div><div class="mid">Tie-break time: '+state.secs.toFixed(1)+' s (lower wins)</div>'+rows+'</div>'+
-  '<p class="hint">Your answers are locked. Please wait. The presenter will start Round 2.</p>');
+  '<p class="hint">Your answers are locked. Thanks for playing!</p>');
 }
 /* ---------- board ---------- */
 var base=location.href.replace(/[?#].*$/,'').replace(/board\.html$/,'').replace(/index\.html$/,'');
@@ -291,8 +291,7 @@ function render(data){
 function tick(){fetch(DB+'/rooms/'+ROOM+'.json').then(function(r){return r.json()}).then(render).catch(function(){})}
 $('reset').onclick=resetAll;$('nextr').onclick=function(){goBoard('swipe')};
 $("bsteps").innerHTML=stepsHTML("price");
-setInterval(function(){if(view==="play")getCtl().then(function(c){if(c&&c.phase&&c.phase!=="price"&&PAGES[c.phase])location.replace(PAGES[c.phase]+SEARCH)})},1500);
-if(location.hash!=="#board")getCtl().then(function(c){if(c&&c.phase&&c.phase!=="price"&&PAGES[c.phase])location.replace(PAGES[c.phase]+SEARCH)});
+if(location.hash==="#board")location.replace("dashboard.html"+SEARCH);
 if(location.hash==="#board")start();else resumeOrStart();
 setView(location.hash==='#board'||new URLSearchParams(location.search).get('view')==='board'?'board':'play');
 </script></body></html>

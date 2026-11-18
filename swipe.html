@@ -4,7 +4,7 @@
 <title>Swipe to Shop - Price It Right</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared.css?v=3">
+<link rel="stylesheet" href="shared.css?v=4">
 <style>
 .prog{display:flex;gap:6px;margin:4px 0 14px}.prog i{flex:1;height:6px;border-radius:9px;background:rgba(255,255,255,.12)}.prog i.on{background:linear-gradient(90deg,var(--teal),var(--cyan))}
 .deck{position:relative;height:500px;touch-action:pan-y}
@@ -46,7 +46,7 @@
 .big-title{font:800 40px Sora,sans-serif;margin:26px 0 0;animation:in .5s both}
 @media(max-width:900px){.reveal{grid-template-columns:1fr}}
 </style></head><body><div id="wrap"></div>
-<script src="shared.js?v=3"></script>
+<script src="shared.js?v=4"></script>
 <script>
 var BOARD=location.hash==='#board';
 var SWP=ROOM+'__swipe';
@@ -59,13 +59,12 @@ var CARDS=[
  {k:'f3',img:'q3.png',nm:'Stanley Quencher H2.0',ds:'40 oz tumbler',pr:function(){return '$59'}}
 ];
 var wrap=$('wrap');
-if(BOARD)board();else player();
+if(BOARD)location.replace("dashboard.html"+SEARCH);else player();
 
 /* ---------------- player ---------------- */
 function player(){
-  follow('swipe');
   var st=JSON.parse(localStorage.getItem('pir_sw_'+ROOM)||'null');
-  if(st&&st.pid){resume(st);return}
+  if(st&&st.pid){api(SWP+'/'+st.pid).then(function(d){if(d)resume(st);else{localStorage.removeItem('pir_sw_'+ROOM);player()}}).catch(function(){resume(st)});return}
   var n=myName();
   wrap.innerHTML='<span class="kicker"><i></i>Round 2</span><br><h1 class="logo">Swipe to Shop</h1>'+
    '<p class="sub">You are shopping. For each item, would you buy it at this price? Swipe right to buy, left to pass. No right or wrong answers.</p>'+
@@ -116,7 +115,7 @@ function resume(s){
   sc.addEventListener('pointerup',function(){if(x0===null)return;x0=null;sc.style.transition='';if(Math.abs(dx)>90)fly(dx>0?1:-1);else{sc.style.transform='';$('sb').style.opacity=0;$('sp').style.opacity=0}});
 }
 function thanks(){
-  wrap.innerHTML='<div class="card center fade" style="margin-top:40px"><div style="font-size:64px">🛍️</div><h1 class="logo">All done!</h1><p class="sub">Look at the big screen. Something interesting is about to happen.</p></div>';
+  wrap.innerHTML='<div class="card center fade" style="margin-top:40px"><div style="font-size:64px">🛍️</div><h1 class="logo">All done!</h1><p class="sub">Thanks for shopping. Look at the big screen.</p></div>';
 }
 
 /* ---------------- board ---------------- */

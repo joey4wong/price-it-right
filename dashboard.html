@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Results - Price It Right</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css?v=4">
+<style>
+html{scroll-behavior:smooth}
+.top{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+.top h1.logo{font-size:48px;margin:0}
+.navp{display:flex;gap:8px}.navp a{font:600 14px Inter,sans-serif;color:var(--ink);text-decoration:none;background:var(--glass);border:1px solid var(--line);padding:9px 16px;border-radius:99px}
+.navp a:hover{background:rgba(255,255,255,.14)}
+.joins{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:18px 0 8px}
+.jc{display:flex;gap:14px;align-items:center;background:var(--glass);border:1px solid var(--line);border-radius:20px;padding:14px}
+.jc img{width:104px;height:104px;border-radius:10px;background:#fff;padding:5px;flex:none}
+.jc .k{font:700 12px Inter,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--teal)}
+.jc .t{font:800 22px Sora,sans-serif;margin:2px 0}
+.jc .u{font-size:12px;color:var(--mut);word-break:break-all}
+.jc .n{margin-top:6px;font-weight:700;font-size:15px}.jc .n b{font:800 20px Sora,sans-serif;color:var(--ink)}
+section{margin-top:38px;scroll-margin-top:16px}
+section h2{font:800 34px Sora,sans-serif;margin:0 0 4px;display:flex;align-items:center;gap:12px}
+section h2 .num{display:inline-grid;place-items:center;width:42px;height:42px;border-radius:12px;background:linear-gradient(100deg,var(--teal),var(--cyan));color:#04241c;font-size:22px}
+section .sub{margin:0 0 16px}
+.grid2{display:grid;grid-template-columns:1.4fr 1fr;gap:20px;align-items:start}
+.box{background:var(--glass);border:1px solid var(--line);border-radius:22px;padding:18px 20px}
+.box h3{margin:0 0 10px;font:700 13px Inter,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}
+.lb{display:flex;flex-direction:column;gap:8px}
+.lr{display:grid;grid-template-columns:44px 1fr 90px 80px;align-items:center;gap:10px;padding:10px 14px;border-radius:14px;background:rgba(255,255,255,.04);font-size:20px}
+.lr .rk{font:800 20px Sora,sans-serif;color:var(--mut);text-align:center}.lr .nm{font:700 20px Sora,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lr .sc{font:800 22px Sora,sans-serif;text-align:right}.lr .sc small{font-size:14px;color:var(--mut)}.lr .tm{text-align:right;color:var(--mut);font-size:16px}
+.lr.g{background:linear-gradient(100deg,rgba(251,191,36,.22),rgba(251,191,36,.04));border:1px solid rgba(251,191,36,.5)}.lr.g .nm,.lr.g .rk{color:var(--gold)}
+.hq{padding:10px 0;border-top:1px solid var(--line)}.hq:first-of-type{border-top:0}
+.hq .t{display:flex;gap:10px;align-items:center;font-weight:600;font-size:16px}.hq .t b{font:800 18px Sora,sans-serif;color:var(--red);width:22px}
+.hq .t .n{flex:1}.hq .t .c{font:800 18px Sora,sans-serif;color:var(--red);white-space:nowrap}.hq .t .c small{font:500 12px Inter;color:var(--mut)}
+.empty{color:var(--mut);font-size:17px;padding:10px 0}
+.reveal{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;position:relative}
+.exp{background:var(--glass);border:1px solid var(--line);border-radius:22px;padding:20px}
+.exp h3{margin:0 0 4px;font:800 22px Sora,sans-serif}.exp .lab{color:var(--mut);font-size:15px;margin-bottom:12px;min-height:40px}
+.bar{margin:10px 0}.bar .t{display:flex;justify-content:space-between;font-weight:700;font-size:16px;margin-bottom:6px}.bar .t small{color:var(--mut);font-weight:500}
+.bar .b{height:14px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}.bar .b i{display:block;height:100%;border-radius:99px;transition:width 1s}
+.ga i{background:linear-gradient(90deg,#64748b,#94a3b8)}.gb i{background:linear-gradient(90deg,var(--teal),var(--cyan))}
+.verdict{margin-top:12px;padding:9px 12px;border-radius:12px;font-weight:600;font-size:14px}.verdict.y{background:rgba(52,211,168,.14);color:#b6f5e3}.verdict.n{background:rgba(251,191,36,.12);color:#fde68a}
+.concept{margin-top:10px;font-size:15px;line-height:1.4}.concept b{color:var(--teal)}
+.veil{position:absolute;inset:-6px;border-radius:26px;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);background:rgba(7,11,20,.55);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:2}
+.veil p{color:var(--mut);margin:0;font-size:17px}
+.rc{margin:12px 0}.rc .t{display:flex;justify-content:space-between;font-size:18px;font-weight:700;margin-bottom:6px}.rc .t small{display:block;color:var(--mut);font-weight:500;font-size:14px}
+.rc .b{height:20px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}.rc .b i{display:block;height:100%;border-radius:99px;transition:width 1s}
+.r1 i{background:#64748b}.r2 i{background:linear-gradient(90deg,#94a3b8,#cbd5e1)}.r3 i{background:linear-gradient(90deg,var(--teal),var(--cyan))}.r3 .t{color:var(--teal);font-size:20px}
+.take{margin-top:16px;font:700 22px/1.35 Sora,sans-serif}.take b{color:var(--teal)}
+@media(max-width:1000px){.joins,.reveal,.grid2{grid-template-columns:1fr}}
+</style></head><body><div id="wrap" class="wide">
+<div class="top"><div><span class="kicker"><i></i>Live results</span><br><h1 class="logo">Price It Right</h1></div>
+<div class="navp"><a href="#r1">1 Price It Right</a><a href="#r2">2 Swipe to Shop</a><a href="#r3">3 Falling Price</a></div></div>
+<div class="joins" id="joins"></div>
+<section id="r1"><h2><span class="num">1</span>Price It Right</h2><p class="sub">Most correct wins. Ties go to the faster player.</p>
+ <div class="grid2"><div class="box"><h3>Leaderboard</h3><div class="lb" id="lb"></div></div><div class="box"><h3>Most missed questions</h3><div id="hl"></div></div></div></section>
+<section id="r2"><h2><span class="num">2</span>Swipe to Shop</h2><p class="sub">Surprise: you were in a secret experiment. Half of you saw one version, half saw another. Same product.</p>
+ <div class="reveal" id="rv"></div></section>
+<section id="r3"><h2><span class="num">3</span>Falling Price</h2><p class="sub" id="r3s">What Tims Reserve is worth to this room.</p>
+ <div id="au"></div></section>
+<div class="tools"><button onclick="resetAll2()">Reset all rounds</button></div>
+</div>
+<script src="shared.js?v=4"></script>
+<script>
+var NAMES=["Norse Nitro Cold Brew Green Tea","lululemon Everywhere Belt Bag","Stanley Quencher H2.0","Costco Gold Star Membership","Apple AirPods Pro 3","Nintendo Switch 2","iPhone Duo","Canada Goose Expedition Parka"];
+var TOTAL=8,P0=8;
+var base=location.href.replace(/[?#].*$/,'').replace(/dashboard\.html$/,'');
+var LINKS=[['Round 1','Price It Right',base+SEARCH],['Round 2','Swipe to Shop',base+'swipe.html'+SEARCH],['Round 3','Falling Price',base+'auction.html'+SEARCH]];
+$('joins').innerHTML=LINKS.map(function(l,i){return '<div class="jc"><img src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=0&data='+encodeURIComponent(l[2])+'" alt=""><div><div class="k">'+l[0]+'</div><div class="t">'+l[1]+'</div><div class="u">'+esc(l[2].replace(/^https?:\/\//,''))+'</div><div class="n"><b id="c'+i+'">0</b> playing · <b id="d'+i+'">0</b> done</div></div></div>'}).join('');
+var revealed=sessionStorage.getItem('pir_rv_'+ROOM)==='1';
+function resetAll2(){if(!confirm('Clear all results from all three rounds?'))return;
+  Promise.all([ROOM,ROOM+'__swipe',ROOM+'__auction',ROOM+'__ctl'].map(function(k){return api(k,'DELETE')})).then(function(){sessionStorage.removeItem('pir_rv_'+ROOM);revealed=false;last={};tick()})}
+function arr(d){var a=[];for(var k in (d||{}))if(d[k]&&d[k].name!==undefined)a.push(d[k]);return a}
+var last={};
+function set(id,html){if(last[id]!==html){$(id).innerHTML=html;last[id]=html}}
+function money(p){return '$'+Number(p).toFixed(2)}
+/* round 1 */
+function r1(d){
+  var a=arr(d);a.sort(function(x,y){return (y.score-x.score)||(x.secs-y.secs)||(x.ts-y.ts)});
+  $('c0').textContent=a.length;$('d0').textContent=a.filter(function(p){return p.done}).length;
+  set('lb',a.length?a.slice(0,10).map(function(p,i){var m=i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1);return '<div class="lr'+(i===0?' g':'')+'"><span class="rk">'+m+'</span><span class="nm">'+esc(p.name)+'</span><span class="sc">'+p.score+' <small>/ 8</small></span><span class="tm">'+Number(p.secs).toFixed(1)+' s</span></div>'}).join(''):'<div class="empty">Waiting for players...</div>');
+  var w=[],n=[],i;for(i=0;i<TOTAL;i++){w[i]=0;n[i]=0}
+  a.forEach(function(p){var r=p.res||'';for(i=0;i<r.length&&i<TOTAL;i++){n[i]++;if(r[i]!=='c')w[i]++}});
+  var idx=[];for(i=0;i<TOTAL;i++)if(w[i])idx.push(i);idx.sort(function(x,y){return (w[y]-w[x])||(w[y]/n[y]-w[x]/n[x])||(x-y)});
+  set('hl',idx.length?idx.slice(0,3).map(function(q,k){return '<div class="hq"><div class="t"><b>'+(k+1)+'</b><span class="n">Q'+(q+1)+' '+NAMES[q]+'</span><span class="c">'+w[q]+' <small>of '+n[q]+' missed</small></span></div></div>'}).join(''):'<div class="empty">No wrong answers yet</div>');
+}
+/* round 2 */
+function stat(a,k,test){var r=[{y:0,n:0},{y:0,n:0}];a.forEach(function(p){var v=p.a&&p.a[k];if(v===undefined||!p.g)return;var g=p.g[k]?1:0;r[g].n++;if(test(v))r[g].y++});return r}
+function pct(o){return o.n?Math.round(o.y/o.n*100):0}
+function panel(t,lab,la,lb,r,concept){
+  var a=pct(r[0]),b=pct(r[1]),ok=r[0].n&&r[1].n&&b>a;
+  return '<div class="exp"><h3>'+t+'</h3><div class="lab">'+lab+'</div>'+
+   '<div class="bar ga"><div class="t"><span>'+la+'</span><span>'+a+'% <small>('+r[0].y+' of '+r[0].n+')</small></span></div><div class="b"><i style="width:'+a+'%"></i></div></div>'+
+   '<div class="bar gb"><div class="t"><span>'+lb+'</span><span>'+b+'% <small>('+r[1].y+' of '+r[1].n+')</small></span></div><div class="b"><i style="width:'+b+'%"></i></div></div>'+
+   '<div class="verdict '+(ok?'y':'n')+'">'+(ok?'It worked on this room.':(r[0].n&&r[1].n?'Not this time. With a small group, results can go either way.':'Waiting for more shoppers...'))+'</div><div class="concept">'+concept+'</div></div>';
+}
+function r2(d){
+  var a=arr(d);$('c1').textContent=a.length;$('d1').textContent=a.filter(function(p){return p.done}).length;
+  var ld=stat(a,'ld',function(v){return v===1});
+  var html=panel('$3.99 vs $4.00','Same can. Half saw $3.99, half saw $4.00. Who bought it?','Saw $4.00','Saw $3.99',[ld[1],ld[0]],'<b>Left-digit effect.</b> We read the first digit and stop. A 3 feels much cheaper than a 4.')+
+   panel('Plain vs "was $17.99"','Same 4-pack, same $13.49. Half saw a crossed-out "was" price.','Plain $13.49','Was $17.99, now $13.49',stat(a,'ref',function(v){return v===1}),'<b>Reference pricing.</b> We judge a price against another number. The old price makes it feel like a deal.')+
+   panel('Who picked the 4-pack?','Half saw single + 4-pack. Half also saw a 12-pack.','Menu with 2 options','With a 12-pack added',stat(a,'cmp',function(v){return v==='four'}),'<b>Compromise effect.</b> Add a bigger option and the middle one suddenly feels like the safe choice.')+
+   (revealed?'':'<div class="veil"><p>Hidden so players are not spoiled while they shop.</p><button class="big" onclick="revealed=true;sessionStorage.setItem(\'pir_rv_\'+ROOM,\'1\');last.rv=null;tick()">Reveal results</button></div>');
+  set('rv',html);
+}
+/* round 3 */
+function r3(d){
+  var a=arr(d),b=a.filter(function(p){return p.p}),miss=a.filter(function(p){return p.missed}).length;
+  $('c2').textContent=a.length;$('d2').textContent=b.length+miss;
+  $('r3s').textContent=b.length?(b.length+' bought, '+miss+' missed it by waiting too long.'):'What Tims Reserve is worth to this room.';
+  if(!b.length){set('au','<div class="box"><div class="empty">Waiting for buyers...</div></div>');return}
+  var prices=b.map(function(p){return p.p}).sort(function(x,y){return y-x}),k=prices.length;
+  var skim=prices.reduce(function(s,p){return s+p},0),best=0,bp=0,bk=0;prices.forEach(function(p,i){if(p*(i+1)>best){best=p*(i+1);bp=p;bk=i+1}});
+  var pmin=prices[k-1],pen=pmin*k;
+  var W=640,H=280,bw=Math.min(60,(W-60)/k),svg='<svg viewBox="0 0 '+W+' '+(H+40)+'" style="width:100%"><defs><linearGradient id="gg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#34d3a8"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs>';
+  prices.forEach(function(p,i){var h=p/P0*H;svg+='<rect x="'+(30+i*bw+2)+'" y="'+(H-h)+'" width="'+Math.max(2,bw-4)+'" height="'+h+'" rx="5" fill="url(#gg)"/>'+(bw>=26?'<text x="'+(30+i*bw+bw/2)+'" y="'+(H-h-7)+'" fill="#f1f5f9" font-size="13" font-weight="700" text-anchor="middle" font-family="Inter">'+p.toFixed(2)+'</text>':'')});
+  var by=H-bp/P0*H;svg+='<line x1="20" x2="'+(30+k*bw+8)+'" y1="'+by+'" y2="'+by+'" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="7 6"/><text x="'+Math.min(W-130,30+k*bw+12)+'" y="'+(by-8)+'" fill="#fbbf24" font-size="14" font-weight="700" font-family="Inter">one price '+money(bp)+'</text>';
+  svg+='<text x="30" y="'+(H+28)+'" fill="#8b9bb4" font-size="15" font-family="Inter">Each bar = one buyer, highest price first</text></svg>';
+  function rc(cls,t,s,v){return '<div class="rc '+cls+'"><div class="t"><span>'+t+'<small>'+s+'</small></span><span>'+money(v)+'</span></div><div class="b"><i style="width:'+Math.round(v/skim*100)+'%"></i></div></div>'}
+  set('au','<div class="grid2"><div class="box"><h3>What each buyer paid (your demand curve)</h3>'+svg+'</div><div class="box"><h3>Revenue from the same '+k+' buyer'+(k>1?'s':'')+'</h3>'+
+    rc('r1','Low price for everyone','Penetration: everyone pays '+money(pmin),pen)+rc('r2','Best single price','Everyone pays '+money(bp)+', '+bk+' buyer'+(bk>1?'s':''),best)+rc('r3','Falling price','Skimming: start high, then lower it',skim)+
+    '</div></div><div class="take">The people who wanted it most paid the most. A falling price reaches each of them. That is <b>skimming</b>.</div>');
+}
+function tick(){
+  api(ROOM).then(r1).catch(function(){});
+  api(ROOM+'__swipe').then(r2).catch(function(){});
+  api(ROOM+'__auction').then(r3).catch(function(){});
+}
+tick();setInterval(tick,1500);
+</script></body></html>
