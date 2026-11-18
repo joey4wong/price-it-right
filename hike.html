@@ -4,7 +4,7 @@
 <title>Price Hike - Game 2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared.css?v=6">
+<link rel="stylesheet" href="shared.css?v=7">
 <style>
 .prog{display:flex;gap:6px;margin:4px 0 14px}.prog i{flex:1;height:6px;border-radius:9px;background:rgba(255,255,255,.12)}.prog i.on{background:linear-gradient(90deg,var(--teal),var(--cyan))}
 .deck{position:relative;height:470px;touch-action:pan-y}
@@ -22,17 +22,17 @@
 .bpass{background:rgba(251,113,133,.12);border-color:rgba(251,113,133,.6)!important;color:#fecdd3}
 .bbuy{background:rgba(52,211,168,.16);border-color:rgba(52,211,168,.7)!important;color:#b6f5e3}
 </style></head><body><div id="wrap"></div>
-<script src="shared.js?v=6"></script>
+<script src="shared.js?v=7"></script>
 <script>
 if(location.hash==='#board')location.replace('dashboard.html'+SEARCH);
 var COL=ROOM+'__hike',KEY='pir_hk_'+ROOM;
 var CARDS=[
- {k:'coffee',nm:'Your usual coffee',ph:'Your usual coffee',o:'$2.50',n:'$3.00'},
- {k:'water',nm:'Any brand of bottled water',ph:'Bottled water',o:'$1.99',n:'$2.39'},
- {k:'laptop',nm:'A new laptop',ph:'Laptop',o:'$1,500',n:'$1,800'},
- {k:'salt',nm:'Table salt',ph:'Table salt',o:'$2.00',n:'$2.40'},
- {k:'earbuds',nm:'Wireless earbuds (online)',ph:'Wireless earbuds',o:'$60',n:'$72'},
- {k:'movie',nm:'A movie ticket',ph:'Movie ticket',o:'$15',n:'$18'}
+ {k:'coffee',img:'hk_coffee.png',nm:'Your usual coffee',ph:'Your usual coffee',o:'$2.50',n:'$3.00'},
+ {k:'water',img:'hk_water.png',nm:'Any brand of bottled water',ph:'Bottled water',o:'$1.99',n:'$2.39'},
+ {k:'laptop',img:'hk_laptop.png',nm:'A new laptop',ph:'Laptop',o:'$1,500',n:'$1,800'},
+ {k:'salt',img:'hk_salt.png',nm:'Table salt',ph:'Table salt',o:'$2.00',n:'$2.40'},
+ {k:'earbuds',img:'hk_earbuds.png',nm:'Wireless earbuds (online)',ph:'Wireless earbuds',o:'$60',n:'$72'},
+ {k:'movie',img:'hk_movie.png',nm:'A movie ticket',ph:'Movie ticket',o:'$15',n:'$18'}
 ];
 var wrap=$('wrap'),st=once(KEY);
 function save(){localStorage.setItem(KEY,JSON.stringify(st))}
