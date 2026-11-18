@@ -15,17 +15,18 @@
 .shelf small{display:block;font:500 13px Inter,sans-serif;color:var(--mut);margin-top:2px}
 .shelf .ic{font-size:26px;width:34px;text-align:center}
 .shelf.on{border-color:var(--teal);background:rgba(52,211,168,.18)}
+@media(max-height:720px){.item .pic{height:130px!important}.item .pic img,.item .pic .ph{max-height:125px!important}}
 </style></head><body><div id="wrap"></div>
 <script src="shared.js?v=6"></script>
 <script>
 if(location.hash==='#board')location.replace('dashboard.html'+SEARCH);
 var COL=ROOM+'__place',KEY='pir_pl_'+ROOM;
 var CARDS=[
- {k:'gum',ph:'Chewing gum',nm:'Chewing gum',ds:'A pack of mint gum'},
- {k:'washer',ph:'Washing machine',nm:'Washing machine',ds:'Front-load, mid-range brand'},
- {k:'infiniti',ph:'Infiniti car',nm:'Infiniti car',ds:'Luxury car brand'},
- {k:'coke',ph:'Coca-Cola',nm:'Coca-Cola',ds:'A 355 mL can'},
- {k:'salon',ph:'Salon shampoo',nm:'Professional salon shampoo',ds:'High-end hair care brand'},
+ {k:'gum',img:'pl_gum.png',ph:'Chewing gum',nm:'Chewing gum',ds:'A pack of gum'},
+ {k:'washer',img:'pl_washer.png',ph:'Washing machine',nm:'Washing machine',ds:'Front-load, mid-range brand'},
+ {k:'infiniti',img:'pl_infiniti.png',ph:'Infiniti car',nm:'Infiniti car',ds:'Luxury car brand'},
+ {k:'coke',img:'pl_coke.png',ph:'Coca-Cola',nm:'Coca-Cola',ds:'A 355 mL bottle'},
+ {k:'salon',img:'pl_salon.png',ph:'Salon shampoo',nm:'Professional salon shampoo',ds:'High-end hair care brand'},
  {k:'lulu',img:'q2.png',nm:'lululemon Everywhere Belt Bag',ds:'1 L'}
 ];
 var SHELVES=[['int','🏪','Everywhere','Any store, gas station, vending machine'],['sel','🛒','Some stores','Only chosen stores'],['exc','💎','Only a few places','One dealer or brand store in town']];
