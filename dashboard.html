@@ -59,7 +59,7 @@ section .sub{margin:0 0 16px}
  <div class="reveal" id="rv"></div></section>
 <section id="r3"><h2><span class="num">3</span>Falling Price</h2><p class="sub" id="r3s">What Tims Reserve is worth to this room.</p>
  <div id="au"></div></section>
-<div class="tools"><button onclick="resetAll2()">Reset all rounds</button></div>
+<div class="tools" style="opacity:1"><button id="rst" onclick="resetAll2()">Reset all rounds</button><span id="rmsg" style="color:var(--mut);font-size:14px"></span></div>
 </div>
 <script src="shared.js?v=4"></script>
 <script>
@@ -69,8 +69,11 @@ var base=location.href.replace(/[?#].*$/,'').replace(/dashboard\.html$/,'');
 var LINKS=[['Round 1','Price It Right',base+SEARCH],['Round 2','Swipe to Shop',base+'swipe.html'+SEARCH],['Round 3','Falling Price',base+'auction.html'+SEARCH]];
 $('joins').innerHTML=LINKS.map(function(l,i){return '<div class="jc"><img src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=0&data='+encodeURIComponent(l[2])+'" alt=""><div><div class="k">'+l[0]+'</div><div class="t">'+l[1]+'</div><div class="u">'+esc(l[2].replace(/^https?:\/\//,''))+'</div><div class="n"><b id="c'+i+'">0</b> playing · <b id="d'+i+'">0</b> done</div></div></div>'}).join('');
 var revealed=sessionStorage.getItem('pir_rv_'+ROOM)==='1';
-function resetAll2(){if(!confirm('Clear all results from all three rounds?'))return;
-  Promise.all([ROOM,ROOM+'__swipe',ROOM+'__auction',ROOM+'__ctl'].map(function(k){return api(k,'DELETE')})).then(function(){sessionStorage.removeItem('pir_rv_'+ROOM);revealed=false;last={};tick()})}
+var armT=null;
+function resetAll2(){var b=$('rst');
+  if(!armT){b.textContent='Click again to clear everything';b.style.borderColor='#fb7185';b.style.color='#fecdd3';armT=setTimeout(function(){armT=null;b.textContent='Reset all rounds';b.style.borderColor='';b.style.color=''},4000);return}
+  clearTimeout(armT);armT=null;b.textContent='Clearing...';b.disabled=true;
+  Promise.all([ROOM,ROOM+'__swipe',ROOM+'__auction',ROOM+'__ctl'].map(function(k){return api(k,'DELETE')})).then(function(){sessionStorage.removeItem('pir_rv_'+ROOM);revealed=false;last={};tick();b.disabled=false;b.textContent='Reset all rounds';b.style.borderColor='';b.style.color='';$('rmsg').textContent='All results cleared at '+new Date().toLocaleTimeString()}).catch(function(){b.disabled=false;b.textContent='Reset all rounds';$('rmsg').textContent='Reset failed. Check the internet connection and try again.'})}
 function arr(d){var a=[];for(var k in (d||{}))if(d[k]&&d[k].name!==undefined)a.push(d[k]);return a}
 var last={};
 function set(id,html){if(last[id]!==html){$(id).innerHTML=html;last[id]=html}}
