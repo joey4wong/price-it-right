@@ -3,23 +3,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Falling Price - Game 3</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2214%22 fill=%22%23c8f560%22/%3E%3Ctext x=%2232%22 y=%2246%22 font-family=%22Arial,sans-serif%22 font-weight=%22700%22 font-size=%2240%22 text-anchor=%22middle%22 fill=%22%230b0b0c%22%3E$%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared.css?v=6">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css?v=8">
 <style>
-.pnum{font:800 92px/1 Sora,Inter,sans-serif;letter-spacing:-.03em;font-variant-numeric:tabular-nums;margin:10px 0}
+.pnum{font:600 88px/1 var(--mono);letter-spacing:-.06em;font-variant-numeric:tabular-nums;margin:10px 0}
 .pnum.cd{color:var(--gold)}
-#buy{width:100%;font:900 40px Sora,Inter,sans-serif;padding:26px;border-radius:24px;border:0;color:#04241c;background:linear-gradient(100deg,var(--teal),var(--cyan));box-shadow:0 14px 40px rgba(52,211,168,.35);cursor:pointer}
+#buy{width:100%;font:700 30px var(--sans);letter-spacing:-.02em;padding:24px;border-radius:16px;border:0;color:#0b0b0c;background:var(--acc);box-shadow:0 0 0 1px rgba(200,245,96,.3),0 12px 40px rgba(200,245,96,.2);cursor:pointer}
 #buy:active{transform:scale(.97)}
-.rules{text-align:left;color:var(--mut);font-size:16px;line-height:1.5;margin:0 0 16px;padding-left:20px}.rules b{color:var(--ink)}
+.rules{text-align:left;color:var(--mut);font-size:15px;line-height:1.55;margin:0 0 16px;padding-left:20px}.rules b{color:var(--ink)}
 .tix{width:100%;max-width:420px;border-radius:12px;box-shadow:0 14px 30px rgba(0,0,0,.45);display:block;margin:0 auto}
-.opt{display:block;width:100%;font:700 18px Inter,sans-serif;color:var(--ink);background:rgba(255,255,255,.07);border:2px solid var(--line);border-radius:14px;padding:14px;margin-bottom:9px;cursor:pointer}
-.left{display:none;align-items:center;gap:8px;margin-top:12px;font:800 20px Sora,Inter,sans-serif;color:var(--ink);background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.45);padding:8px 16px;border-radius:99px}
+.opt{display:block;width:100%;font:500 17px var(--sans);color:var(--ink);background:var(--card2);border:1px solid var(--line2);border-radius:12px;padding:14px;margin-bottom:9px;cursor:pointer;transition:border-color .15s}
+.opt:active{border-color:var(--acc)}
+.left{display:none;align-items:center;gap:8px;margin-top:12px;font:600 16px var(--mono);color:var(--gold);background:rgba(245,196,81,.08);border:1px solid rgba(245,196,81,.4);padding:8px 14px;border-radius:10px}
 .left.show{display:inline-flex;animation:pop .45s cubic-bezier(.2,1.6,.4,1) both}
 @keyframes pop{from{transform:scale(.4);opacity:0}}
-.left.low{display:inline-flex;color:#fecdd3;background:rgba(251,113,133,.15);border-color:rgba(251,113,133,.5);animation:shake .5s infinite}
+.left.low{display:inline-flex;color:var(--neg);background:rgba(255,122,89,.10);border-color:rgba(255,122,89,.5);animation:shake .5s infinite}
 @keyframes shake{50%{transform:scale(1.05)}}
 .left.show.low{animation:pop .45s cubic-bezier(.2,1.6,.4,1) both,shake .6s .45s infinite}
-</style></head><body><div id="wrap"></div>
+</style></head><body>
+<header class="bar"><div class="in"><div class="brand"><span class="mk">$</span>Price It, Place It</div><div class="gn"><b>Game 3</b> / 5</div></div></header><div id="wrap"></div>
 <script src="shared.js?v=6"></script>
 <script>
 if(location.hash==='#board')location.replace('dashboard.html'+SEARCH);
@@ -79,8 +81,8 @@ function result(){
 }
 function cgAsk(){
   if(st.cg){$('cgq').innerHTML='<p class="hint">Thanks for playing. Look at the big screen.</p>';return}
-  $('cgq').innerHTML='<div class="card fade" style="margin-top:16px"><div style="font:700 18px Sora,sans-serif">One last question</div><img src="q8.png" alt="" style="display:block;margin:8px auto;max-height:150px">'+
-   '<p class="sub" style="margin:4px 0 12px">Canada Goose cuts its $1,995 parka to <b style="color:#fbbf24">half price</b>, for good. Would you want it...</p>'+
+  $('cgq').innerHTML='<div class="card fade" style="margin-top:16px"><div style="font:600 17px var(--sans);letter-spacing:-.01em">One last question</div><img src="q8.png" alt="" style="display:block;margin:8px auto;max-height:150px">'+
+   '<p class="sub" style="margin:4px 0 12px">Canada Goose cuts its $1,995 parka to <b style="color:#f5c451">half price</b>, for good. Would you want it...</p>'+
    [['more','More'],['same','The same'],['less','Less']].map(function(o){return '<button class="opt" data-v="'+o[0]+'">'+o[1]+'</button>'}).join('')+'</div>';
   var bs=$('cgq').querySelectorAll('button');
   for(var i=0;i<bs.length;i++)bs[i].onclick=function(){st.cg=this.getAttribute('data-v');save();api(AUC+'/'+st.pid,'PATCH',{cg:st.cg}).catch(function(){});cgAsk()};

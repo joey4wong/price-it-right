@@ -3,25 +3,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Price Hike - Game 2</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2214%22 fill=%22%23c8f560%22/%3E%3Ctext x=%2232%22 y=%2246%22 font-family=%22Arial,sans-serif%22 font-weight=%22700%22 font-size=%2240%22 text-anchor=%22middle%22 fill=%22%230b0b0c%22%3E$%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared.css?v=7">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css?v=8">
 <style>
-.prog{display:flex;gap:6px;margin:4px 0 14px}.prog i{flex:1;height:6px;border-radius:9px;background:rgba(255,255,255,.12)}.prog i.on{background:linear-gradient(90deg,var(--teal),var(--cyan))}
+.prog{display:flex;gap:5px;margin:6px 0 14px}.prog i{flex:1;height:4px;border-radius:9px;background:rgba(255,255,255,.12);transition:background .3s}.prog i.on{background:var(--acc)}
 .deck{position:relative;height:470px;touch-action:pan-y}
 .sc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;user-select:none;-webkit-user-select:none;transition:transform .35s cubic-bezier(.2,.8,.2,1),opacity .35s}
 .sc .pic{height:190px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;width:100%}
 .sc .pic,.sc .pic *{pointer-events:none}
-.nm{font:700 23px/1.25 Sora,Inter,sans-serif}
-.old{margin-top:12px;font:600 22px Sora,sans-serif;color:var(--mut);text-decoration:line-through;text-decoration-color:var(--mut)}
-.new{font:800 46px Sora,Inter,sans-serif;color:var(--gold)}
-.tag{display:inline-block;margin-top:6px;font:800 13px Inter,sans-serif;letter-spacing:.1em;color:#422006;background:var(--gold);padding:5px 12px;border-radius:99px}
-.stamp{position:absolute;top:22px;font:900 26px Sora,sans-serif;padding:4px 12px;border:4px solid;border-radius:12px;opacity:0}
-.stamp.buy{left:18px;color:var(--teal);transform:rotate(-12deg)}.stamp.pass{right:18px;color:var(--red);transform:rotate(12deg)}
-.btns{display:flex;gap:14px;margin-top:16px}
-.btns button{flex:1;font:800 19px Sora,Inter,sans-serif;padding:17px 10px;border-radius:18px;cursor:pointer;border:2px solid}
-.bpass{background:rgba(251,113,133,.12);border-color:rgba(251,113,133,.6)!important;color:#fecdd3}
-.bbuy{background:rgba(52,211,168,.16);border-color:rgba(52,211,168,.7)!important;color:#b6f5e3}
-</style></head><body><div id="wrap"></div>
+.nm{font:600 22px/1.25 var(--sans);letter-spacing:-.02em}
+.old{margin-top:12px;font:500 20px var(--mono);color:var(--dim);text-decoration:line-through;text-decoration-color:var(--dim)}
+.new{font:600 46px var(--mono);letter-spacing:-.05em;color:var(--gold)}
+.tag{display:inline-block;margin-top:8px;font:500 12px var(--mono);letter-spacing:.04em;color:var(--gold);border:1px solid rgba(245,196,81,.5);padding:4px 10px;border-radius:6px}
+.stamp{position:absolute;top:22px;font:700 20px var(--mono);letter-spacing:.04em;padding:4px 12px;border:2px solid;border-radius:8px;opacity:0}
+.stamp.buy{left:20px;color:var(--acc);transform:rotate(-10deg)}.stamp.pass{right:20px;color:var(--neg);transform:rotate(10deg)}
+.btns{display:flex;gap:12px;margin-top:16px}
+.btns button{flex:1;font:600 17px var(--sans);padding:16px 10px;border-radius:12px;cursor:pointer;border:1px solid;background:transparent}
+.bpass{border-color:rgba(255,122,89,.5)!important;color:var(--neg);background:rgba(255,122,89,.06)}
+.bbuy{border-color:rgba(200,245,96,.5)!important;color:var(--acc);background:rgba(200,245,96,.08)}
+</style></head><body>
+<header class="bar"><div class="in"><div class="brand"><span class="mk">$</span>Price It, Place It</div><div class="gn"><b>Game 2</b> / 5</div></div></header><div id="wrap"></div>
 <script src="shared.js?v=7"></script>
 <script>
 if(location.hash==='#board')location.replace('dashboard.html'+SEARCH);
@@ -42,7 +43,7 @@ function boot(){
 }
 function intro(){
   wrap.innerHTML='<span class="kicker"><i></i>Game 2</span><br><h1 class="logo">Price Hike</h1>'+
-   '<p class="sub">Six things you might buy. Each one just got <b style="color:#fbbf24">20% more expensive</b>. Would you still buy it? Swipe right to keep buying, left to walk away. Be honest.</p>'+
+   '<p class="sub">Six things you might buy. Each one just got <b style="color:#f5c451">20% more expensive</b>. Would you still buy it? Swipe right to keep buying, left to walk away. Be honest.</p>'+
    '<div class="card"><input id="nm" placeholder="Your name" maxlength="20" autocomplete="off"><button class="main" id="go">Start</button></div>';
   $('go').onclick=function(){var v=$('nm').value.trim()||'Player';this.disabled=true;
     st={pid:pid(),name:v,a:{},i:0};
