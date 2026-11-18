@@ -120,7 +120,7 @@ button.main:active{transform:scale(.98)}
  <div class="tools"><button id="nextr" style="border-color:rgba(52,211,168,.6)">Next round: Swipe to Shop</button><button id="reset">Reset all rounds</button></div>
 </div>
 </div>
-<script src="shared.js?v=1"></script>
+<script src="shared.js?v=3"></script>
 <script>
 var ITEMS=[
  {e:"\uD83C\uDF75",img:"q1.png",n:"Norse Nitro Cold Brew Green Tea with Lemon",d:"12-pack of 355 mL cans",o:["$24","$48","$96"],a:1,real:"$47.99"},
@@ -159,6 +159,20 @@ function sync(done){
   try{fetch(DB+'/rooms/'+ROOM+'/'+state.pid+'.json',{method:'PUT',keepalive:true,body:JSON.stringify({name:state.name,score:state.score,secs:Math.round(state.secs*10)/10,q:state.log.length,res:res,done:!!done,ts:Date.now()})}).catch(function(){})}catch(e){}
 }
 function el(h){app.innerHTML=h}
+var R1='pir_r1_'+ROOM;
+function save(inq){try{localStorage.setItem(R1,JSON.stringify({pid:state.pid,name:state.name,score:state.score,log:state.log,secs:state.secs,inq:!!inq}))}catch(e){}}
+function resumeOrStart(){
+  var sv=null;try{sv=JSON.parse(localStorage.getItem(R1)||'null')}catch(e){}
+  if(!sv||!sv.pid){start();return}
+  el('<p class="hint">Loading...</p>');
+  fetch(DB+'/rooms/'+ROOM+'/'+sv.pid+'.json',{cache:'no-store'}).then(function(r){return r.json()}).then(function(d){
+    if(!d){localStorage.removeItem(R1);start();return}
+    state={name:sv.name,i:0,score:sv.score,log:sv.log||[],t0:0,timer:null,locked:false,secs:sv.secs||0,pid:sv.pid};
+    if(sv.inq&&state.log.length<TOTAL){state.log.push({n:ITEMS[state.log.length].n,ok:false,timeout:true});state.secs+=SECS;sync(state.log.length>=TOTAL);save(false)}
+    state.i=state.log.length;
+    if(state.i>=TOTAL)finish();else show();
+  }).catch(function(){start()});
+}
 function start(){
   navShow(true);
   el('<h1 class="logo">Price It Right</h1><p class="sub">'+TOTAL+' products. 3 prices each. '+SECS+' seconds per question. Most correct answers wins; if tied, the faster player wins.</p>'+
@@ -167,7 +181,7 @@ function start(){
   $('go').onclick=function(){
     var v=$('nm').value.trim();
     setName(v||'Player');state={name:v||"Player",i:0,score:0,log:[],t0:0,timer:null,locked:false,secs:0,pid:pid()};
-    sync(false);show();
+    sync(false);save(false);show();
   };
 }
 function show(){
@@ -179,7 +193,7 @@ function show(){
   '<div class="card"><div class="pic"><img src="'+it.img+'" alt=""></div><div class="name">'+esc(it.n)+'</div><div class="desc">'+esc(it.d)+'</div><div class="q">How much does it cost?</div>'+opts+'<div class="fb" id="fb"></div></div>');
   var btns=app.querySelectorAll('.opt');
   for(var b=0;b<btns.length;b++)btns[b].onclick=(function(k){return function(){answer(k)}})(b);
-  state.t0=Date.now();clearInterval(state.timer);
+  state.t0=Date.now();clearInterval(state.timer);save(true);
   state.timer=setInterval(function(){
     var left=Math.max(0,SECS-(Date.now()-state.t0)/1000);
     var tb=$('tbar'),tm=$('tm');
@@ -195,7 +209,7 @@ function answer(k){
   var ok=(k===it.a);
   state.secs+=(SECS-left);if(ok)state.score++;
   state.log.push({n:it.n,ok:ok,timeout:k<0});
-  sync(state.log.length>=TOTAL);
+  sync(state.log.length>=TOTAL);save(false);
   var btns=app.querySelectorAll('.opt');
   for(var b=0;b<btns.length;b++){btns[b].onclick=null;btns[b].className='opt '+(b===it.a?'right':b===k?'wrong':'dim')}
   $('fb').innerHTML=ok?('<span class="ok">Correct!</span><br>It costs '+esc(it.real)):('<span class="no">'+(k<0?"Time is up":"Not quite")+'</span><br>It costs '+esc(it.real));
@@ -206,9 +220,7 @@ function finish(){
   var rows=state.log.map(function(l){return '<div class="rw"><span>'+esc(l.n)+'</span><span class="'+(l.timeout?'tmo':l.ok?'ok':'no')+'">'+(l.ok?'correct':(l.timeout?'time':'miss'))+'</span></div>'}).join('');
   el('<h1 class="logo">Done, '+esc(state.name)+'!</h1>'+
   '<div class="card"><div class="mid">Your score</div><div class="big">'+state.score+' / '+TOTAL+'</div><div class="mid">Tie-break time: '+state.secs.toFixed(1)+' s (lower wins)</div>'+rows+'</div>'+
-  '<p class="hint">Stay on this page. Round 2 will start automatically.</p>'+
-  '<div style="margin-top:10px"><button class="main" id="again" style="background:var(--glass);color:var(--ink);border:1px solid var(--line)">Play again</button></div>');
-  $('again').onclick=start;
+  '<p class="hint">Your answers are locked. Please wait. The presenter will start Round 2.</p>');
 }
 /* ---------- board ---------- */
 var base=location.href.replace(/[?#].*$/,'').replace(/board\.html$/,'').replace(/index\.html$/,'');
@@ -281,6 +293,6 @@ $('reset').onclick=resetAll;$('nextr').onclick=function(){goBoard('swipe')};
 $("bsteps").innerHTML=stepsHTML("price");
 setInterval(function(){if(view==="play")getCtl().then(function(c){if(c&&c.phase&&c.phase!=="price"&&PAGES[c.phase])location.replace(PAGES[c.phase]+SEARCH)})},1500);
 if(location.hash!=="#board")getCtl().then(function(c){if(c&&c.phase&&c.phase!=="price"&&PAGES[c.phase])location.replace(PAGES[c.phase]+SEARCH)});
-start();
+if(location.hash==="#board")start();else resumeOrStart();
 setView(location.hash==='#board'||new URLSearchParams(location.search).get('view')==='board'?'board':'play');
 </script></body></html>
