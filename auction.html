@@ -24,7 +24,7 @@
 <script>
 if(location.hash==='#board')location.replace('dashboard.html'+SEARCH);
 var AUC=ROOM+'__auction',KEY='pir_au3_'+ROOM;
-var P0=400,P1=40,DUR=30000,CD=3000,HOLD=5000,STOCK=20,TIX='<img class="tix" src="ts.jpg" alt="">';
+var P0=400,P1=40,DUR=30000,CD=3000,HOLD=5000,STOCK=15,TIX='<img class="tix" src="ts.jpg" alt="">';
 var wrap=$('wrap'),st=once(KEY);
 function money(p){return '$'+Math.round(p)}
 function priceAt(ms){var e=ms-CD;if(e<0)return P0;return Math.max(P1,Math.round(P0-(P0-P1)*e/DUR))}
