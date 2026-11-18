@@ -13,9 +13,12 @@
 .rules{text-align:left;color:var(--mut);font-size:16px;line-height:1.5;margin:0 0 16px;padding-left:20px}.rules b{color:var(--ink)}
 .tix{width:100%;max-width:420px;border-radius:12px;box-shadow:0 14px 30px rgba(0,0,0,.45);display:block;margin:0 auto}
 .opt{display:block;width:100%;font:700 18px Inter,sans-serif;color:var(--ink);background:rgba(255,255,255,.07);border:2px solid var(--line);border-radius:14px;padding:14px;margin-bottom:9px;cursor:pointer}
-.left{display:inline-flex;align-items:center;gap:8px;margin-top:12px;font:800 20px Sora,Inter,sans-serif;color:var(--ink);background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.45);padding:8px 16px;border-radius:99px}
-.left.low{color:#fecdd3;background:rgba(251,113,133,.15);border-color:rgba(251,113,133,.5);animation:shake .5s infinite}
+.left{display:none;align-items:center;gap:8px;margin-top:12px;font:800 20px Sora,Inter,sans-serif;color:var(--ink);background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.45);padding:8px 16px;border-radius:99px}
+.left.show{display:inline-flex;animation:pop .45s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes pop{from{transform:scale(.4);opacity:0}}
+.left.low{display:inline-flex;color:#fecdd3;background:rgba(251,113,133,.15);border-color:rgba(251,113,133,.5);animation:shake .5s infinite}
 @keyframes shake{50%{transform:scale(1.05)}}
+.left.show.low{animation:pop .45s cubic-bezier(.2,1.6,.4,1) both,shake .6s .45s infinite}
 </style></head><body><div id="wrap"></div>
 <script src="shared.js?v=6"></script>
 <script>
@@ -43,7 +46,7 @@ function intro(){
 }
 function run(){
   wrap.innerHTML='<div class="center"><span class="kicker"><i></i>Game 3 · Falling Price</span><div style="margin-top:14px">'+TIX+'</div>'+
-   '<div id="lf" class="left">🎟️ '+STOCK+' of '+STOCK+' tickets left</div>'+
+   '<div style="min-height:58px"><div id="lf" class="left"></div></div>'+
    '<div class="pnum" id="pn">'+money(P0)+'</div><div style="margin-top:10px"><button id="buy" disabled style="opacity:.4">BUY</button></div></div>';
   var t0=Date.now(),done=false,shown=P0,floorAt=0;
   function stop(){done=true;clearInterval(tm);clearInterval(pl)}
@@ -58,7 +61,7 @@ function run(){
     }).catch(function(){st.res={p:price};save();result()})}
   $('buy').onclick=function(){if(Date.now()-t0>=CD)buy()};
   function poll(){api(AUC).then(function(d){if(done)return;var n=buyers(d).length,left=Math.max(0,STOCK-n),lf=$('lf');
-    if(lf){lf.textContent='🎟️ '+left+' of '+STOCK+' tickets left';lf.className='left'+(left<=5?' low':'')}
+    if(lf&&left<=5&&left>0){var tx='🔥 Only '+left+' ticket'+(left>1?'s':'')+' left!';if(lf.textContent!==tx){lf.textContent=tx;lf.className='left';void lf.offsetWidth;lf.className='left show low'}}
     if(left<=0)miss('sold')}).catch(function(){})}
   poll();var pl=setInterval(poll,700);
   var tm=setInterval(function(){var el=Date.now()-t0,pn=$('pn');
