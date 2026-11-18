@@ -105,7 +105,7 @@ button.big::after{content:" \2192"}
  <div><div class="box" style="margin-bottom:16px"><h3>Most missed questions</h3><div id="hl"></div></div><div class="hid" id="v1"></div></div></div></section>
 
 <section id="g2"><div class="sh"><div><div class="idx"><b>02</b>Game 2</div><h2>Price Hike</h2><p class="sub">Everything went up 20%. Who kept buying?</p></div><span class="cpt">Price sensitivity</span></div><div class="hid" id="v2"></div></section>
-<section id="g3"><div class="sh"><div><div class="idx"><b>03</b>Game 3</div><h2>Falling Price</h2><p class="sub" id="g3s">A front-row concert ticket, starting at $400.</p></div><span class="cpt">Pricing strategies</span></div><div class="hid" id="v3"></div></section>
+<section id="g3"><div class="sh"><div><div class="idx"><b>03</b>Game 3</div><h2>Falling Price</h2><p class="sub" id="g3s">20 concert tickets for the whole class, starting at $400.</p></div><span class="cpt">Pricing strategies</span></div><div class="hid" id="v3"></div></section>
 <section id="g4"><div class="sh"><div><div class="idx"><b>04</b>Game 4</div><h2>Swipe to Shop</h2><p class="sub">Surprise: you were in a secret experiment. Half of you saw one version, half saw another. Same product.</p></div><span class="cpt">Price psychology</span></div><div class="hid" id="v4"></div></section>
 <section id="g5"><div class="sh"><div><div class="idx"><b>05</b>Game 5</div><h2>Where Does It Belong?</h2><p class="sub">Where should each product be sold?</p></div><span class="cpt">Distribution</span></div><div class="hid" id="v5"></div></section>
 
@@ -161,7 +161,7 @@ function g2(d){
 function money(p){return '$'+Math.round(p)}
 function g3(d){
   var a=arr(d),b=a.filter(function(p){return p.p}),miss=a.filter(function(p){return p.missed}).length;cnt(2,a);
-  $('g3s').textContent=b.length?(b.length+' bought, '+miss+' missed it by waiting too long.'):'A front-row concert ticket, starting at $400.';
+  $('g3s').textContent=a.length?(b.length+' of 20 tickets sold'+(miss?', '+miss+' missed out':'')+'.'):'20 concert tickets for the whole class, starting at $400.';
   var cg={more:0,same:0,less:0},cn=0;a.forEach(function(p){if(cg[p.cg]!==undefined){cg[p.cg]++;cn++}});
   var cgBox='<div class="box"><h3>Canada Goose at half price. Would you want it...</h3>'+bar('More',cg.more,cn,'grey')+bar('The same',cg.same,cn,'grey')+bar('Less',cg.less,cn,'red')+'<div class="concept"><b>Prestige pricing.</b> When the high price is part of the appeal, a lower price can hurt.</div></div>';
   var main;

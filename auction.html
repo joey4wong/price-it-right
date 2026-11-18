@@ -13,47 +13,65 @@
 .rules{text-align:left;color:var(--mut);font-size:16px;line-height:1.5;margin:0 0 16px;padding-left:20px}.rules b{color:var(--ink)}
 .tix{width:100%;max-width:420px;border-radius:12px;box-shadow:0 14px 30px rgba(0,0,0,.45);display:block;margin:0 auto}
 .opt{display:block;width:100%;font:700 18px Inter,sans-serif;color:var(--ink);background:rgba(255,255,255,.07);border:2px solid var(--line);border-radius:14px;padding:14px;margin-bottom:9px;cursor:pointer}
+.left{display:inline-flex;align-items:center;gap:8px;margin-top:12px;font:800 20px Sora,Inter,sans-serif;color:var(--ink);background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.45);padding:8px 16px;border-radius:99px}
+.left.low{color:#fecdd3;background:rgba(251,113,133,.15);border-color:rgba(251,113,133,.5);animation:shake .5s infinite}
+@keyframes shake{50%{transform:scale(1.05)}}
 </style></head><body><div id="wrap"></div>
 <script src="shared.js?v=6"></script>
 <script>
 if(location.hash==='#board')location.replace('dashboard.html'+SEARCH);
 var AUC=ROOM+'__auction',KEY='pir_au3_'+ROOM;
-var P0=400,P1=40,DUR=30000,CD=3000,TIX='<img class="tix" src="ts.jpg" alt="">';
+var P0=400,P1=40,DUR=30000,CD=3000,HOLD=5000,STOCK=20,TIX='<img class="tix" src="ts.jpg" alt="">';
 var wrap=$('wrap'),st=once(KEY);
 function money(p){return '$'+Math.round(p)}
 function priceAt(ms){var e=ms-CD;if(e<0)return P0;return Math.max(P1,Math.round(P0-(P0-P1)*e/DUR))}
 function save(){localStorage.setItem(KEY,JSON.stringify(st))}
+function buyers(d){var a=[];for(var k in (d||{})){var x=d[k];if(x&&x.p){x._k=k;a.push(x)}}a.sort(function(x,y){return ((x.bt||x.ts||0)-(y.bt||y.ts||0))||(x._k<y._k?-1:1)});return a}
 function check(){
   if(!st||!st.pid){intro();return}
   api(AUC+'/'+st.pid).then(function(d){if(!d){localStorage.removeItem(KEY);st=null;intro();return}
-    if(!st.res){st.res=d.p?{p:d.p}:{missed:true};save();if(!d.p&&!d.missed)api(AUC+'/'+st.pid,'PATCH',{missed:true,done:true,q:1})}
+    if(!st.res){st.res=d.p?{p:d.p}:{missed:true,why:'left'};save();if(!d.p&&!d.missed)api(AUC+'/'+st.pid,'PATCH',{missed:true,done:true,q:1})}
     result()}).catch(intro);
 }
 function intro(){
   wrap.innerHTML='<span class="kicker"><i></i>Game 3</span><br><h1 class="logo">Falling Price</h1><div style="margin:4px 0 14px">'+TIX+'</div>'+
-   '<ul class="rules"><li>A front-row ticket to see an artist you love. It starts at <b>$400</b> and the price keeps falling.</li><li>Tap <b>BUY</b> at the price you would really pay.</li><li>Careful: tickets <b>sell out at a random moment</b>. Wait too long and you miss it.</li><li>One try only.</li></ul>'+
+   '<ul class="rules"><li>A concert ticket to see an artist you love. It starts at <b>$400</b> and the price keeps falling.</li><li>There are only <b>'+STOCK+' tickets for the whole class</b>.</li><li>Tap <b>BUY</b> at the price you would really pay. When all '+STOCK+' are gone, it is <b>sold out</b>.</li><li>One try only.</li></ul>'+
    '<div class="card"><input id="nm" placeholder="Your name" maxlength="20" autocomplete="off"><button class="main" id="go">Start</button></div>';
   $('go').onclick=function(){var v=$('nm').value.trim()||'Player';this.disabled=true;
-    st={pid:pid(),name:v,cut:Math.round(75+Math.random()*150)};
-    api(AUC+'/'+st.pid,'PUT',rec({name:v,cut:st.cut})).then(function(){save();run()}).catch(function(){$('go').disabled=false})};
+    st={pid:pid(),name:v};
+    api(AUC+'/'+st.pid,'PUT',rec({name:v})).then(function(){save();run()}).catch(function(){$('go').disabled=false})};
 }
 function run(){
   wrap.innerHTML='<div class="center"><span class="kicker"><i></i>Game 3 · Falling Price</span><div style="margin-top:14px">'+TIX+'</div>'+
-   '<div class="sub" style="margin:8px 0 0">Front-row concert ticket</div><div class="pnum" id="pn">'+money(P0)+'</div><div style="margin-top:10px"><button id="buy" disabled style="opacity:.4">BUY</button></div></div>';
-  var t0=Date.now(),done=false,shown=P0;
-  function finish(o){if(done)return;done=true;clearInterval(tm);st.res=o;save();
-    api(AUC+'/'+st.pid,'PATCH',o.p?{p:o.p,done:true,q:1}:{missed:true,done:true,q:1}).catch(function(){});result()}
-  $('buy').onclick=function(){var el=Date.now()-t0;if(el>=CD)finish({p:shown})};
+   '<div id="lf" class="left">🎟️ '+STOCK+' of '+STOCK+' tickets left</div>'+
+   '<div class="pnum" id="pn">'+money(P0)+'</div><div style="margin-top:10px"><button id="buy" disabled style="opacity:.4">BUY</button></div></div>';
+  var t0=Date.now(),done=false,shown=P0,floorAt=0;
+  function stop(){done=true;clearInterval(tm);clearInterval(pl)}
+  function miss(why){if(done)return;stop();st.res={missed:true,why:why};save();
+    api(AUC+'/'+st.pid,'PATCH',{missed:true,done:true,q:1}).catch(function(){});result()}
+  function buy(){if(done)return;stop();var price=shown;
+    var b=$('buy');b.disabled=true;b.textContent='...';
+    api(AUC+'/'+st.pid,'PATCH',{p:price,done:true,q:1,bt:{'.sv':'timestamp'}}).then(function(){return api(AUC)}).then(function(d){
+      var a=buyers(d),rank=0;for(var i=0;i<a.length;i++)if(a[i]._k===st.pid){rank=i+1;break}
+      if(rank&&rank<=STOCK){st.res={p:price,n:rank};save();result()}
+      else{st.res={missed:true,why:'sold'};save();api(AUC+'/'+st.pid,'PATCH',{p:null,missed:true,late:price}).catch(function(){});result()}
+    }).catch(function(){st.res={p:price};save();result()})}
+  $('buy').onclick=function(){if(Date.now()-t0>=CD)buy()};
+  function poll(){api(AUC).then(function(d){if(done)return;var n=buyers(d).length,left=Math.max(0,STOCK-n),lf=$('lf');
+    if(lf){lf.textContent='🎟️ '+left+' of '+STOCK+' tickets left';lf.className='left'+(left<=5?' low':'')}
+    if(left<=0)miss('sold')}).catch(function(){})}
+  poll();var pl=setInterval(poll,700);
   var tm=setInterval(function(){var el=Date.now()-t0,pn=$('pn');
     if(el<CD){pn.textContent=Math.ceil((CD-el)/1000);pn.className='pnum cd';return}
-    var b=$('buy');if(b.disabled){b.disabled=false;b.style.opacity=1}
-    var p=priceAt(el);shown=p;pn.textContent=money(p);pn.className='pnum';if(p<=st.cut)finish({missed:true})},50);
+    var b=$('buy');if(b.disabled&&!done){b.disabled=false;b.style.opacity=1}
+    var p=priceAt(el);shown=p;pn.textContent=money(p);pn.className='pnum';
+    if(p<=P1){if(!floorAt)floorAt=el;if(el-floorAt>=HOLD)miss('ended')}},50);
 }
 function result(){
-  var r=st.res;
+  var r=st.res,msg=r.why==='ended'?'The price hit $'+P1+' and the sale ended before you tapped BUY.':r.why==='sold'?'All '+STOCK+' tickets were gone before you tapped BUY. Waiting has a cost.':'You did not get a ticket this time.';
   wrap.innerHTML='<div class="card center fade" style="margin-top:24px">'+TIX+
-   (r.p?'<h1 class="logo" style="margin-top:14px">You bought it!</h1><div class="pnum" style="font-size:64px">'+money(r.p)+'</div><p class="sub">That is what the ticket is worth to you.</p>'
-       :'<h1 class="logo" style="margin-top:14px">Sold out!</h1><p class="sub">The tickets sold out at '+money(st.cut)+' before you tapped BUY. Waiting has a cost.</p>')+'</div><div id="cgq"></div>';
+   (r.p?'<h1 class="logo" style="margin-top:14px">You bought it!</h1><div class="pnum" style="font-size:64px">'+money(r.p)+'</div><p class="sub">'+(r.n?'Ticket '+r.n+' of '+STOCK+'. ':'')+'That is what the ticket is worth to you.</p>'
+       :'<h1 class="logo" style="margin-top:14px">'+(r.why==='ended'?'Sale ended':'Sold out!')+'</h1><p class="sub">'+msg+'</p>')+'</div><div id="cgq"></div>';
   cgAsk();
 }
 function cgAsk(){
