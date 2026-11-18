@@ -68,7 +68,7 @@ function player(){
   var n=myName();
   wrap.innerHTML='<span class="kicker"><i></i>Round 2</span><br><h1 class="logo">Swipe to Shop</h1>'+
    '<p class="sub">You are shopping. For each item, would you buy it at this price? Swipe right to buy, left to pass. No right or wrong answers.</p>'+
-   '<div class="card"><input id="nm" placeholder="Your name" maxlength="20" autocomplete="off" value="'+esc(n)+'"><button class="main" id="go">Start shopping</button></div>';
+   '<div class="card"><input id="nm" placeholder="Your name" maxlength="20" autocomplete="off" value=""><button class="main" id="go">Start shopping</button></div>';
   $('go').onclick=function(){
     var v=$('nm').value.trim()||'Player';setName(v);$('go').disabled=true;
     api(SWP).then(function(d){
@@ -79,7 +79,6 @@ function player(){
       return api(SWP+'/'+s.pid,'PUT',rec({name:v,g:g,a:{}})).then(function(){resume(s)});
     }).catch(function(){$('go').disabled=false});
   };
-  if(n)$('go').click();
 }
 function save(s){localStorage.setItem('pir_sw_'+ROOM,JSON.stringify(s))}
 function resume(s){
