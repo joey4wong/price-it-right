@@ -35,6 +35,7 @@ button.main:active{transform:scale(.98)}
 .timer>div{height:100%;width:100%;background:linear-gradient(90deg,var(--teal),var(--cyan));transition:width .1s linear}
 .timer.low>div{background:var(--red)}
 .emoji{font-size:84px;text-align:center;margin:4px 0}
+.pic{display:flex;justify-content:center;align-items:center;height:190px;margin:2px 0 8px}.pic img{max-width:80%;max-height:190px;object-fit:contain;filter:drop-shadow(0 12px 18px rgba(0,0,0,.45))}
 .name{font:700 23px/1.25 Sora,Inter,sans-serif;text-align:center}
 .desc{text-align:center;color:var(--mut);margin:6px 0 14px;font-size:16px}
 .q{text-align:center;font-weight:600;margin-bottom:14px;color:var(--teal);font-size:17px}
@@ -115,14 +116,14 @@ button.main:active{transform:scale(.98)}
 </div>
 <script>
 var ITEMS=[
- {e:"\uD83C\uDF75",n:"Norse Nitro Cold Brew Green Tea with Lemon",d:"12-pack of 355 mL cans",o:["$24","$48","$96"],a:1,real:"$47.99"},
- {e:"\uD83D\uDC5C",n:"lululemon Everywhere Belt Bag",d:"1 L, regular price",o:["$44","$88","$132"],a:0,real:"$44"},
- {e:"\uD83E\uDD64",n:"Stanley Quencher H2.0 Tumbler",d:"40 oz, regular price",o:["$19","$39","$59"],a:2,real:"$59"},
- {e:"\uD83D\uDED2",n:"Costco Gold Star Membership",d:"One year",o:["$25","$65","$130"],a:1,real:"$65"},
- {e:"\uD83C\uDFA7",n:"Apple AirPods Pro 3",d:"New",o:["$179","$249","$329"],a:2,real:"$329"},
- {e:"\uD83C\uDFAE",n:"Nintendo Switch 2",d:"Console only",o:["$679.99","$879.99","$1,079.99"],a:0,real:"$679.99"},
- {e:"\uD83D\uDCF1",n:"iPhone 17",d:"256 GB",o:["$899","$1,299","$1,699"],a:1,real:"$1,299"},
- {e:"\uD83E\uDDE5",n:"Canada Goose Expedition Parka",d:"Men's",o:["$995","$1,495","$1,995"],a:2,real:"$1,995"}
+ {e:"\uD83C\uDF75",img:"q1.png",n:"Norse Nitro Cold Brew Green Tea with Lemon",d:"12-pack of 355 mL cans",o:["$24","$48","$96"],a:1,real:"$47.99"},
+ {e:"\uD83D\uDC5C",img:"q2.png",n:"lululemon Everywhere Belt Bag",d:"1 L, regular price",o:["$44","$88","$132"],a:0,real:"$44"},
+ {e:"\uD83E\uDD64",img:"q3.png",n:"Stanley Quencher H2.0 Tumbler",d:"40 oz, regular price",o:["$19","$39","$59"],a:2,real:"$59"},
+ {e:"\uD83D\uDED2",img:"q4.png",n:"Costco Gold Star Membership",d:"One year",o:["$25","$65","$130"],a:1,real:"$65"},
+ {e:"\uD83C\uDFA7",img:"q5.png",n:"Apple AirPods Pro 3",d:"New",o:["$179","$249","$329"],a:2,real:"$329"},
+ {e:"\uD83C\uDFAE",img:"q6.png",n:"Nintendo Switch 2",d:"Console only",o:["$679.99","$879.99","$1,079.99"],a:0,real:"$679.99"},
+ {e:"\uD83D\uDCF1",img:"q7.png",n:"iPhone Duo",d:"256 GB, Apple's first foldable",o:["$1,999","$2,999","$3,999"],a:1,real:"$2,999"},
+ {e:"\uD83E\uDDE5",img:"q8.png",n:"Canada Goose Expedition Parka",d:"Men's",o:["$995","$1,495","$1,995"],a:2,real:"$1,995"}
 ];
 var TOTAL=ITEMS.length,SECS=8,FEEDBACK_MS=1400;
 var DB='https://price-it-right-game-default-rtdb.firebaseio.com';
@@ -167,7 +168,7 @@ function show(){
   var opts=it.o.map(function(o,k){return '<button class="opt" data-k="'+k+'">'+esc(o)+'</button>'}).join('');
   el('<div class="top"><span>Question '+(state.i+1)+' / '+TOTAL+'</span><span>Correct '+state.score+'</span></div>'+
   '<div class="timer" id="tm"><div id="tbar"></div></div>'+
-  '<div class="card"><div class="emoji">'+it.e+'</div><div class="name">'+esc(it.n)+'</div><div class="desc">'+esc(it.d)+'</div><div class="q">How much does it cost?</div>'+opts+'<div class="fb" id="fb"></div></div>');
+  '<div class="card"><div class="pic"><img src="'+it.img+'" alt=""></div><div class="name">'+esc(it.n)+'</div><div class="desc">'+esc(it.d)+'</div><div class="q">How much does it cost?</div>'+opts+'<div class="fb" id="fb"></div></div>');
   var btns=app.querySelectorAll('.opt');
   for(var b=0;b<btns.length;b++)btns[b].onclick=(function(k){return function(){answer(k)}})(b);
   state.t0=Date.now();clearInterval(state.timer);
