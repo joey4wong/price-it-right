@@ -28,23 +28,6 @@
 .menu button span{font:800 21px Sora,sans-serif}
 .menu button.none{justify-content:center;color:var(--mut);font-weight:600;font-size:16px;padding:11px}
 .q{color:var(--teal);font-weight:600;margin-bottom:6px}
-/* board */
-.chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
-.chip{padding:10px 16px;border-radius:14px;background:var(--glass);border:1px solid var(--line);font:700 20px Sora,sans-serif;animation:in .4s both}
-.chip small{font:600 14px Inter,sans-serif;color:var(--mut);margin-left:8px}.chip.done{border-color:rgba(52,211,168,.6)}.chip.done small{color:var(--teal)}
-.bhead{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
-.reveal{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:22px}
-.exp{background:var(--glass);border:1px solid var(--line);border-radius:22px;padding:20px;animation:in .6s both}
-.exp:nth-child(2){animation-delay:.25s}.exp:nth-child(3){animation-delay:.5s}
-.exp h3{margin:0 0 4px;font:800 22px Sora,sans-serif}.exp .lab{color:var(--mut);font-size:15px;margin-bottom:14px;min-height:40px}
-.bar{margin:10px 0}.bar .t{display:flex;justify-content:space-between;font-weight:700;font-size:17px;margin-bottom:6px}.bar .t small{color:var(--mut);font-weight:500}
-.bar .b{height:16px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}.bar .b i{display:block;height:100%;width:0;border-radius:99px;transition:width 1.2s cubic-bezier(.2,.8,.2,1)}
-.ga i{background:linear-gradient(90deg,#64748b,#94a3b8)}.gb i{background:linear-gradient(90deg,var(--teal),var(--cyan))}
-.verdict{margin-top:14px;padding:10px 12px;border-radius:12px;font-weight:600;font-size:15px}
-.verdict.y{background:rgba(52,211,168,.14);color:#b6f5e3}.verdict.n{background:rgba(251,191,36,.12);color:#fde68a}
-.concept{margin-top:12px;font-size:15px;line-height:1.4;color:var(--ink)}.concept b{color:var(--teal)}
-.big-title{font:800 40px Sora,sans-serif;margin:26px 0 0;animation:in .5s both}
-@media(max-width:900px){.reveal{grid-template-columns:1fr}}
 </style></head><body><div id="wrap"></div>
 <script src="shared.js?v=6"></script>
 <script>
@@ -117,42 +100,4 @@ function thanks(){
   wrap.innerHTML='<div class="card center fade" style="margin-top:40px"><div style="font-size:64px">🛍️</div><h1 class="logo">All done!</h1><p class="sub">Thanks for shopping. Look at the big screen.</p></div>';
 }
 
-/* ---------------- board ---------------- */
-function board(){
-  wrap.className='wide';
-  wrap.innerHTML=stepsHTML('swipe')+'<div class="bhead"><div><span class="kicker"><i></i>Game 4</span><br><h1 class="logo">Swipe to Shop</h1><p class="sub" style="margin:0">Would you buy it at this price? Swipe right to buy, left to pass.</p></div>'+
-  '<div><span class="pill"><b id="np">0</b>Shopping</span> <span class="pill"><b id="nd">0</b>Done</span></div></div>'+
-  '<div id="body"><div class="chips" id="chips"></div><div style="margin-top:26px"><button class="big" id="rv">Reveal results</button></div></div>'+
-  '<div class="tools"><button onclick="goBoard(\'auction\')">Next round: Falling Price</button><button onclick="resetAll()">Reset all rounds</button></div>';
-  var data=null,revealed=false;
-  function tick(){api(SWP).then(function(d){data=d||{};if(!revealed)live();else drawReveal(false)}).catch(function(){})}
-  function list(){var a=[];for(var k in data)if(data[k]&&data[k].name!==undefined)a.push(data[k]);return a}
-  function live(){
-    var a=list();$('np').textContent=a.length;$('nd').textContent=a.filter(function(p){return p.done}).length;
-    $('chips').innerHTML=a.map(function(p){return '<span class="chip'+(p.done?' done':'')+'">'+esc(p.name)+'<small>'+(p.done?'done':(p.q||0)+' / '+CARDS.length)+'</small></span>'}).join('')||'<span class="sub">Waiting for shoppers... Phones switch to this round by themselves.</span>';
-  }
-  $('rv').onclick=function(){revealed=true;drawReveal(true)};
-  function stat(a,k,test){var r=[{y:0,n:0},{y:0,n:0}];a.forEach(function(p){var v=p.a&&p.a[k];if(v===undefined||!p.g)return;var g=p.g[k]?1:0;r[g].n++;if(test(v))r[g].y++});return r}
-  function pct(o){return o.n?Math.round(o.y/o.n*100):0}
-  function panel(t,lab,la,lb,r,expectB,concept){
-    var a=pct(r[0]),b=pct(r[1]),ok=r[0].n&&r[1].n&&(expectB?b>a:a>b);
-    return '<div class="exp"><h3>'+t+'</h3><div class="lab">'+lab+'</div>'+
-      '<div class="bar ga"><div class="t"><span>'+la+'</span><span>'+a+'% <small>('+r[0].y+' of '+r[0].n+')</small></span></div><div class="b"><i data-w="'+a+'"></i></div></div>'+
-      '<div class="bar gb"><div class="t"><span>'+lb+'</span><span>'+b+'% <small>('+r[1].y+' of '+r[1].n+')</small></span></div><div class="b"><i data-w="'+b+'"></i></div></div>'+
-      '<div class="verdict '+(ok?'y':'n')+'">'+(ok?'It worked on this room.':'Not this time. With a small group, results can go either way.')+'</div>'+
-      '<div class="concept">'+concept+'</div></div>';
-  }
-  function drawReveal(first){
-    var a=list();
-    var html='<div class="big-title">Surprise: you were in a secret experiment.</div><p class="sub" style="margin-top:6px">Half of you saw one version, half saw another. Same product. Here is what you bought.</p><div class="reveal">'+
-      panel('$3.99 vs $4.00','Same can. Half saw $3.99, half saw $4.00. Who bought it?','Saw $4.00','Saw $3.99',(function(r){return [r[1],r[0]]})(stat(a,'ld',function(v){return v===1})),true,'<b>Left-digit effect.</b> We read the first digit and stop. A 3 feels much cheaper than a 4.')+
-      panel('$13.49 vs <s style="color:#8b9bb4">$17.99</s> $13.49','Same 4-pack, same price. Half saw a crossed-out "was" price.','Plain $13.49','Was $17.99, now $13.49',stat(a,'ref',function(v){return v===1}),true,'<b>Reference pricing.</b> We judge a price against another number. The old price makes it feel like a deal.')+
-      panel('Who picked the 4-pack?','Half saw single + 4-pack. Half also saw a 12-pack.','Menu with 2 options','With a 12-pack added',stat(a,'cmp',function(v){return v==='four'}),true,'<b>Compromise effect.</b> Add a bigger option and the middle one suddenly feels like the safe choice.')+
-      '</div>';
-    $('body').innerHTML=html;
-    setTimeout(function(){var is=document.querySelectorAll('.b i');for(var i=0;i<is.length;i++)is[i].style.width=is[i].getAttribute('data-w')+'%'},first?700:0);
-    if(!first){var is=document.querySelectorAll('.b i');for(var j=0;j<is.length;j++){is[j].style.transition='none';is[j].style.width=is[j].getAttribute('data-w')+'%'}}
-  }
-  tick();setInterval(function(){if(!revealed)tick()},1000);
-}
 </script></body></html>
