@@ -34,7 +34,7 @@ section .sub{margin:0 0 14px}
 .hq{padding:9px 0;border-top:1px solid var(--line);display:flex;gap:10px;align-items:center;font-weight:600}.hq:first-of-type{border-top:0}
 .hq b{font:800 17px Sora,sans-serif;color:var(--red);width:20px}.hq .n{flex:1}.hq .c{font:800 17px Sora,sans-serif;color:var(--red);white-space:nowrap}.hq .c small{font:500 12px Inter;color:var(--mut)}
 .empty{color:var(--mut);font-size:17px;padding:8px 0}
-.bar{margin:11px 0}.bar .t{display:flex;justify-content:space-between;gap:10px;font-weight:700;font-size:16px;margin-bottom:6px}.bar .t small{color:var(--mut);font-weight:500}
+.bar{margin:11px 0}.bar .t{display:flex;justify-content:space-between;gap:10px;font-weight:700;font-size:16px;margin-bottom:6px}.bar .t small{color:var(--mut);font-weight:500}.bar .t span:last-child{white-space:nowrap}
 .bar .b{height:14px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}.bar .b i{display:block;height:100%;border-radius:99px;transition:width 1s;background:linear-gradient(90deg,var(--teal),var(--cyan))}
 .bar.grey .b i{background:linear-gradient(90deg,#64748b,#94a3b8)}.bar.red .b i{background:linear-gradient(90deg,var(--gold),var(--red))}
 .fac{display:inline-block;font:600 12px Inter,sans-serif;color:#fde68a;background:rgba(251,191,36,.12);border-radius:99px;padding:3px 9px;margin-left:8px}
@@ -52,7 +52,7 @@ section .sub{margin:0 0 14px}
 .stack span{display:flex;align-items:center;justify-content:center;font:700 13px Inter,sans-serif;color:#04241c;transition:width 1s;white-space:nowrap;overflow:hidden}
 .s-int{background:#34d3a8}.s-sel{background:#38bdf8}.s-exc{background:#c4b5fd}
 .prow{display:grid;grid-template-columns:230px 1fr 130px;gap:14px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}.prow:first-child{border-top:0}
-.prow .pn{font:700 17px Sora,sans-serif}.ans{font:700 13px Inter,sans-serif;padding:5px 10px;border-radius:99px;text-align:center}
+.prow .pn{font:700 17px Sora,sans-serif}.ans{color:#04241c;font:700 13px Inter,sans-serif;padding:5px 10px;border-radius:99px;text-align:center}
 .legend{display:flex;gap:16px;margin-bottom:8px;font-size:14px;color:var(--mut)}.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
 @media(max-width:1100px){.joins{grid-template-columns:repeat(3,1fr)}.grid2,.grid3{grid-template-columns:1fr}.prow{grid-template-columns:1fr}}
 </style></head><body><div id="wrap" class="wide">
@@ -129,7 +129,7 @@ function g3(d){
   else{
     var pr=b.map(function(p){return p.p}).sort(function(x,y){return y-x}),k=pr.length,skim=pr.reduce(function(s,p){return s+p},0),best=0,bp=0,bk=0;
     pr.forEach(function(p,i){if(p*(i+1)>best){best=p*(i+1);bp=p;bk=i+1}});var pmin=pr[k-1],pen=pmin*k,P0=400;
-    var W=640,H=250,bw=Math.min(56,(W-60)/k),svg='<svg viewBox="0 0 '+W+' '+(H+36)+'" style="width:100%"><defs><linearGradient id="gg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#34d3a8"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs>';
+    var W=640,H=250,bw=Math.min(56,(W-60)/k),svg='<svg viewBox="0 -24 '+W+' '+(H+60)+'" style="width:100%"><defs><linearGradient id="gg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#34d3a8"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs>';
     pr.forEach(function(p,i){var h=p/P0*H;svg+='<rect x="'+(30+i*bw+2)+'" y="'+(H-h)+'" width="'+Math.max(2,bw-4)+'" height="'+h+'" rx="5" fill="url(#gg)"/>'+(bw>=30?'<text x="'+(30+i*bw+bw/2)+'" y="'+(H-h-7)+'" fill="#f1f5f9" font-size="13" font-weight="700" text-anchor="middle" font-family="Inter">'+Math.round(p)+'</text>':'')});
     var by=H-bp/P0*H;svg+='<line x1="20" x2="'+(30+k*bw+8)+'" y1="'+by+'" y2="'+by+'" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="7 6"/><text x="'+Math.min(W-120,30+k*bw+12)+'" y="'+(by-8)+'" fill="#fbbf24" font-size="14" font-weight="700" font-family="Inter">one price '+money(bp)+'</text><text x="30" y="'+(H+26)+'" fill="#8b9bb4" font-size="14" font-family="Inter">Each bar = one buyer, highest price first</text></svg>';
     function rc(cls,t,s,v){return '<div class="rc '+cls+'"><div class="t"><span>'+t+'<small>'+s+'</small></span><span>'+money(v)+'</span></div><div class="b"><i style="width:'+Math.round(v/skim*100)+'%"></i></div></div>'}
