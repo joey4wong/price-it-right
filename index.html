@@ -101,8 +101,14 @@ button.main:active{transform:scale(.98)}
 .tools{margin-top:24px;opacity:.5}.tools:hover{opacity:1}
 .tools button{font:inherit;font-size:14px;padding:7px 14px;border-radius:10px;border:1px solid var(--line);background:var(--glass);color:var(--ink);cursor:pointer}
 @media(max-width:900px){.cols{grid-template-columns:1fr}.side{position:static}.row{grid-template-columns:40px minmax(0,1fr) 80px;padding:12px}.dots{grid-column:1/-1;order:5}.tm{display:none}.nm{font-size:20px}.bhead h1.logo{font-size:44px}}
+.steps{display:flex;gap:8px;justify-content:center;margin-bottom:18px;flex-wrap:wrap}
+.steps button{font:600 14px Inter,sans-serif;color:var(--mut);background:var(--glass);border:1px solid var(--line);padding:9px 16px;border-radius:99px;cursor:pointer}
+.steps button b{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.1);margin-right:6px;font-size:12px}
+.steps button.on{background:linear-gradient(100deg,var(--teal),var(--cyan));color:#04241c;border-color:transparent}
+.steps button.on b{background:rgba(0,0,0,.15)}
 </style></head><body>
 <div id="wrap">
+<div id="bsteps" style="display:none"></div>
 <div class="nav" id="nav"><div class="seg"><button id="tp" class="on">Play</button><button id="tb">Live board</button></div></div>
 <div id="play"></div>
 <div id="board">
@@ -111,9 +117,10 @@ button.main:active{transform:scale(.98)}
  <div class="stats"><div class="pill"><b id="sp">0</b>In room</div><div class="pill"><b id="sf">0</b>Finished</div></div>
  <div class="cols"><div><div id="rows"></div><div class="empty" id="empty"><span class="em">🛍️</span>Waiting for players to join...</div></div>
  <div class="side"><div class="hard"><h3>Most missed questions</h3><div id="hl"><div style="color:var(--mut);font-size:14px">Waiting for answers...</div></div></div><div class="feed"><h3>Live activity</h3><div id="fl"></div></div></div></div>
- <div class="tools"><button id="reset">Reset board</button></div>
+ <div class="tools"><button id="nextr" style="border-color:rgba(52,211,168,.6)">Next round: Swipe to Shop</button><button id="reset">Reset all rounds</button></div>
 </div>
 </div>
+<script src="shared.js?v=1"></script>
 <script>
 var ITEMS=[
  {e:"\uD83C\uDF75",img:"q1.png",n:"Norse Nitro Cold Brew Green Tea with Lemon",d:"12-pack of 355 mL cans",o:["$24","$48","$96"],a:1,real:"$47.99"},
@@ -137,6 +144,7 @@ function setView(v){
   view=v;$('play').style.display=v==='play'?'block':'none';$('board').style.display=v==='board'?'block':'none';
   $('tp').className=v==='play'?'on':'';$('tb').className=v==='board'?'on':'';
   $('wrap').style.maxWidth=v==='board'?'1180px':'560px';
+  $('bsteps').style.display=v==='board'?'block':'none';$('nav').style.display='none';
   clearInterval(pollT);
   if(v==='board'){tick();pollT=setInterval(tick,1000);history.replaceState(null,'','#board')}else history.replaceState(null,'',location.pathname+location.search);
 }
@@ -155,10 +163,10 @@ function start(){
   navShow(true);
   el('<h1 class="logo">Price It Right</h1><p class="sub">'+TOTAL+' products. 3 prices each. '+SECS+' seconds per question. Most correct answers wins; if tied, the faster player wins.</p>'+
   '<div class="card"><input id="nm" placeholder="Your name" maxlength="20" autocomplete="off"><button class="main" id="go">Start</button></div>'+
-  '<p class="hint">Tip: tap an answer as soon as you know it. Tap "Live board" above to watch everyone.</p>');
+  '<p class="hint">Tip: tap an answer as soon as you know it.</p>');
   $('go').onclick=function(){
     var v=$('nm').value.trim();
-    state={name:v||"Player",i:0,score:0,log:[],t0:0,timer:null,locked:false,secs:0,pid:pid()};
+    setName(v||'Player');state={name:v||"Player",i:0,score:0,log:[],t0:0,timer:null,locked:false,secs:0,pid:pid()};
     sync(false);show();
   };
 }
@@ -198,9 +206,9 @@ function finish(){
   var rows=state.log.map(function(l){return '<div class="rw"><span>'+esc(l.n)+'</span><span class="'+(l.timeout?'tmo':l.ok?'ok':'no')+'">'+(l.ok?'correct':(l.timeout?'time':'miss'))+'</span></div>'}).join('');
   el('<h1 class="logo">Done, '+esc(state.name)+'!</h1>'+
   '<div class="card"><div class="mid">Your score</div><div class="big">'+state.score+' / '+TOTAL+'</div><div class="mid">Tie-break time: '+state.secs.toFixed(1)+' s (lower wins)</div>'+rows+'</div>'+
-  '<div style="margin-top:14px"><button class="main" id="seeb">See live board</button></div>'+
+  '<p class="hint">Stay on this page. Round 2 will start automatically.</p>'+
   '<div style="margin-top:10px"><button class="main" id="again" style="background:var(--glass);color:var(--ink);border:1px solid var(--line)">Play again</button></div>');
-  $('again').onclick=start;$('seeb').onclick=function(){setView('board')};
+  $('again').onclick=start;
 }
 /* ---------- board ---------- */
 var base=location.href.replace(/[?#].*$/,'').replace(/board\.html$/,'').replace(/index\.html$/,'');
@@ -269,7 +277,10 @@ function render(data){
   for(var k2 in els)if(!seen[k2]){els[k2].remove();delete els[k2]}
 }
 function tick(){fetch(DB+'/rooms/'+ROOM+'.json').then(function(r){return r.json()}).then(render).catch(function(){})}
-$('reset').onclick=function(){if(confirm('Clear all players from the board?'))fetch(DB+'/rooms/'+ROOM+'.json',{method:'DELETE'}).then(function(){prev=null;$('fl').innerHTML='';tick()})};
+$('reset').onclick=resetAll;$('nextr').onclick=function(){goBoard('swipe')};
+$("bsteps").innerHTML=stepsHTML("price");
+setInterval(function(){if(view==="play")getCtl().then(function(c){if(c&&c.phase&&c.phase!=="price"&&PAGES[c.phase])location.replace(PAGES[c.phase]+SEARCH)})},1500);
+if(location.hash!=="#board")getCtl().then(function(c){if(c&&c.phase&&c.phase!=="price"&&PAGES[c.phase])location.replace(PAGES[c.phase]+SEARCH)});
 start();
 setView(location.hash==='#board'||new URLSearchParams(location.search).get('view')==='board'?'board':'play');
 </script></body></html>

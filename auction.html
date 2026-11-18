@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Falling Price - Price It Right</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css?v=1">
+<style>
+.pnum{font:800 92px/1 Sora,Inter,sans-serif;letter-spacing:-.03em;font-variant-numeric:tabular-nums;margin:10px 0}
+.wide .pnum{font-size:190px}
+.pnum.cd{color:var(--gold)}
+.stock{font-weight:700;color:var(--mut);font-size:17px}.stock b{color:var(--ink)}
+.cans{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:10px 0}
+.cans i{width:16px;height:30px;border-radius:5px;background:#c8102e;box-shadow:inset 0 -9px 0 #22140f;transition:opacity .4s,transform .4s}
+.wide .cans i{width:26px;height:48px;border-radius:7px;box-shadow:inset 0 -14px 0 #22140f}
+.cans i.gone{opacity:.15;transform:scale(.8)}
+#buy{width:100%;font:900 40px Sora,Inter,sans-serif;padding:26px;border-radius:24px;border:0;color:#04241c;background:linear-gradient(100deg,var(--teal),var(--cyan));box-shadow:0 14px 40px rgba(52,211,168,.35);cursor:pointer}
+#buy:active{transform:scale(.97)}
+.msg{font:700 22px Sora,sans-serif;margin-top:10px}
+.feed{display:flex;flex-direction:column;gap:8px}
+.ev{display:flex;justify-content:space-between;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,.05);border-left:3px solid var(--teal);font-size:18px;animation:in .4s both}
+.ev b{font-family:Sora,sans-serif}
+.lay{display:grid;grid-template-columns:1fr 340px;gap:24px;align-items:start;margin-top:10px}
+.rev{display:grid;grid-template-columns:1.2fr 1fr;gap:24px;margin-top:18px}
+.box{background:var(--glass);border:1px solid var(--line);border-radius:22px;padding:20px;animation:in .6s both}
+.box h3{margin:0 0 10px;font:700 13px Inter,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}
+.rc{margin:12px 0}.rc .t{display:flex;justify-content:space-between;font-size:18px;font-weight:700;margin-bottom:6px}.rc .t small{display:block;color:var(--mut);font-weight:500;font-size:14px}
+.rc .b{height:22px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}.rc .b i{display:block;height:100%;width:0;border-radius:99px;transition:width 1.3s cubic-bezier(.2,.8,.2,1)}
+.r1 i{background:#64748b}.r2 i{background:linear-gradient(90deg,#94a3b8,#cbd5e1)}.r3 i{background:linear-gradient(90deg,var(--teal),var(--cyan))}
+.r3 .t{color:var(--teal);font-size:21px}
+.take{margin-top:18px;font:700 24px/1.35 Sora,sans-serif}.take b{color:var(--teal)}
+.next{margin-top:16px;color:var(--mut);font-size:18px}
+@media(max-width:900px){.lay,.rev{grid-template-columns:1fr}.wide .pnum{font-size:110px}}
+</style></head><body><div id="wrap"></div>
+<script src="shared.js?v=1"></script>
+<script>
+var BOARD=location.hash==='#board';
+var AUC=ROOM+'__auction';
+var P0=8,P1=1,DUR=30000,CD=3000,STOCK=parseInt(QS.get('stock'))||12;
+var ctl=null,off=0,buyers=[],wrap=$('wrap');
+function priceAt(ms){var e=ms-CD;if(e<0)return P0;return Math.max(P1,Math.round((P0-(P0-P1)*e/DUR)*100)/100)}
+function money(p){return '$'+p.toFixed(2)}
+function now(){return Date.now()+off}
+function syncFrom(t0,serverTs){var t1=Date.now();off=serverTs-(t0+t1)/2}
+function readBuyers(d){
+  var a=[];for(var k in (d||{})){var p=d[k];if(p&&p.bt&&ctl&&ctl.aStart){p._k=k;p.price=priceAt(p.bt-ctl.aStart);a.push(p)}}
+  a.sort(function(x,y){return x.bt-y.bt});return a;
+}
+function canRow(sold){var h='';for(var i=0;i<STOCK;i++)h+='<i class="'+(i<sold?'gone':'')+'"></i>';return h}
+if(BOARD)board();else player();
+
+/* ---------------- player ---------------- */
+function player(){
+  follow('auction');
+  var st=JSON.parse(localStorage.getItem('pir_au_'+ROOM)||'null');
+  if(st&&st.pid){var t0=Date.now();api(AUC+'/'+st.pid,'PATCH',{ping:{'.sv':'timestamp'}}).then(function(r){if(r&&r.ping)syncFrom(t0,r.ping)});play(st);return}
+  wrap.innerHTML='<span class="kicker"><i></i>Round 3</span><br><h1 class="logo">Falling Price</h1>'+
+   '<p class="sub">Tims Reserve Cold Brew goes on sale. The price starts high and keeps falling. Tap BUY when it is worth it to you. Only '+STOCK+' cans.</p>'+
+   '<div class="card"><input id="nm" placeholder="Your name" maxlength="20" autocomplete="off" value="'+esc(myName())+'"><button class="main" id="go">I\'m in</button></div>';
+  $('go').onclick=function(){
+    var v=$('nm').value.trim()||'Player';setName(v);$('go').disabled=true;
+    var s={pid:pid(),name:v},t0=Date.now();
+    api(AUC+'/'+s.pid,'PUT',rec({name:v})).then(function(r){if(r&&r.ts)syncFrom(t0,r.ts);localStorage.setItem('pir_au_'+ROOM,JSON.stringify(s));play(s)}).catch(function(){$('go').disabled=false});
+  };
+}
+function play(s){
+  wrap.innerHTML='<div class="center"><span class="kicker"><i></i>Round 3 · Falling Price</span><div style="margin-top:14px">'+timsSVG(1,150)+'</div>'+
+   '<div class="sub" style="margin:6px 0 0">Tims Reserve Cold Brew, 355 mL</div><div class="pnum" id="pn">'+money(P0)+'</div>'+
+   '<div class="cans" id="cn">'+canRow(0)+'</div><div class="stock" id="sk"></div><div id="act" style="margin-top:18px"></div></div>';
+  var mine=null,lastAct='';
+  function setAct(h){if(h!==lastAct){$('act').innerHTML=h;lastAct=h;var b=$('buy');if(b)b.onclick=buy}}
+  function buy(){
+    if(mine)return;var t0=Date.now();mine={local:priceAt(now()-ctl.aStart)};
+    api(AUC+'/'+s.pid,'PUT',rec({name:s.name,bt:{'.sv':'timestamp'},done:true})).then(function(r){if(r&&r.bt){mine.bt=r.bt;mine.price=priceAt(r.bt-ctl.aStart)}});
+  }
+  function poll(){
+    getCtl().then(function(c){if(c){ctl=c;if(!c.aStart){mine=null}}});
+    api(AUC).then(function(d){buyers=readBuyers(d);var me=d&&d[s.pid];if(me&&me.bt&&!mine&&ctl&&ctl.aStart)mine={bt:me.bt,price:priceAt(me.bt-ctl.aStart)}}).catch(function(){});
+  }
+  poll();setInterval(poll,700);
+  setInterval(function(){
+    if(!ctl||!ctl.aStart){$('pn').textContent=money(P0);$('pn').className='pnum';$('sk').innerHTML='Waiting for the auction to start...';setAct('<p class="sub">Get ready. Watch the big screen.</p>');$('cn').innerHTML=canRow(0);return}
+    var el=now()-ctl.aStart,sold=Math.min(STOCK,buyers.length),over=sold>=STOCK||el>=CD+DUR;
+    $('cn').innerHTML=canRow(sold);$('sk').innerHTML='<b>'+(STOCK-sold)+'</b> of '+STOCK+' cans left';
+    if(el<CD){$('pn').textContent=Math.ceil((CD-el)/1000);$('pn').className='pnum cd';setAct('<p class="sub">Starting...</p>');return}
+    $('pn').className='pnum';
+    if(mine){
+      var rank=-1;for(var i=0;i<buyers.length;i++)if(buyers[i]._k===s.pid)rank=i;
+      var p=mine.price||mine.local;$('pn').textContent=money(p);
+      if(rank>=STOCK)setAct('<div class="msg" style="color:#fecdd3">Sold out just before you!</div>');
+      else setAct('<div class="msg" style="color:#b6f5e3">You bought one at '+money(p)+'!</div><p class="sub">Look at the big screen.</p>');
+      return;
+    }
+    $('pn').textContent=money(priceAt(el));
+    if(over)setAct('<div class="msg">'+(sold>=STOCK?'Sold out!':'Auction over.')+'</div><p class="sub">Look at the big screen.</p>');
+    else setAct('<button id="buy">BUY</button>');
+  },100);
+}
+
+/* ---------------- board ---------------- */
+function board(){
+  wrap.className='wide';
+  wrap.innerHTML=stepsHTML('auction')+'<div id="main"></div><div class="tools"><button id="restart">Restart this round</button><button onclick="resetAll()">Reset all rounds</button></div>';
+  var shown='',revealed=false,players=0;
+  $('restart').onclick=function(){if(!confirm('Restart the auction? All purchases in this round will be cleared.'))return;
+    api(AUC,'DELETE').then(function(){return setPhase('auction')}).then(function(){location.reload()})};
+  function t0sync(){var t0=Date.now();return api(CTL,'PATCH',{ping:{'.sv':'timestamp'}}).then(function(r){if(r&&r.ping)syncFrom(t0,r.ping)})}
+  t0sync();
+  function poll(){
+    getCtl().then(function(c){if(c)ctl=c});
+    api(AUC).then(function(d){var n=0;for(var k in (d||{}))if(d[k]&&d[k].name!==undefined)n++;players=n;buyers=readBuyers(d)}).catch(function(){});
+  }
+  poll();setInterval(poll,600);
+  function pre(){
+    if(shown==='pre'){$('np').textContent=players;return}shown='pre';
+    $('main').innerHTML='<div class="lay"><div><span class="kicker"><i></i>Round 3</span><br><h1 class="logo">Falling Price</h1>'+
+     '<p class="sub">Tims Reserve Cold Brew goes on sale. The price starts at '+money(P0)+' and keeps falling. Tap BUY when it is worth it to you. Only '+STOCK+' cans.</p>'+
+     '<div style="margin:18px 0"><span class="pill"><b id="np">'+players+'</b>Ready to buy</span></div><button class="big" id="start">Start the auction</button></div>'+
+     '<div class="center">'+timsSVG(1,320)+'</div></div>';
+    $('start').onclick=function(){this.disabled=true;var t0=Date.now();api(CTL,'PATCH',{aStart:{'.sv':'timestamp'}}).then(function(r){if(r&&r.aStart){syncFrom(t0,r.aStart);ctl.aStart=r.aStart}})};
+  }
+  function liveView(el){
+    var sold=Math.min(STOCK,buyers.length);
+    if(shown!=='live'){shown='live';
+      $('main').innerHTML='<div class="lay"><div class="center"><div class="sub" style="margin:0">Tims Reserve Cold Brew, 355 mL</div><div class="pnum" id="pn"></div><div class="cans" id="cn"></div><div class="stock" id="sk"></div></div>'+
+      '<div class="box"><h3>Sold</h3><div class="feed" id="fd"></div></div></div>'}
+    var pn=$('pn');
+    if(el<CD){pn.textContent=Math.ceil((CD-el)/1000);pn.className='pnum cd'}else{pn.textContent=money(priceAt(el));pn.className='pnum'}
+    $('cn').innerHTML=canRow(sold);$('sk').innerHTML='<b>'+(STOCK-sold)+'</b> of '+STOCK+' cans left';
+    var fh=buyers.slice(0,STOCK).map(function(b){return '<div class="ev"><b>'+esc(b.name)+'</b><span>'+money(b.price)+'</span></div>'}).reverse().join('')||'<div class="sub">Nobody yet...</div>';
+    if($('fd').getAttribute('data-n')!==String(buyers.length)){$('fd').innerHTML=fh;$('fd').setAttribute('data-n',buyers.length)}
+  }
+  function reveal(){
+    revealed=true;var w=buyers.slice(0,STOCK),k=w.length;
+    if(!k){$('main').innerHTML='<div class="box center" style="margin-top:30px"><h1 class="logo">Nobody bought!</h1><p class="sub">Even at '+money(P1)+', no one wanted it. That is useful information too.</p></div>';return}
+    var prices=w.map(function(b){return b.price}).sort(function(a,b){return b-a});
+    var skim=prices.reduce(function(a,b){return a+b},0),best=0,bp=0,bk=0;
+    prices.forEach(function(p,i){if(p*(i+1)>best){best=p*(i+1);bp=p;bk=i+1}});
+    var pmin=prices[k-1],pen=pmin*k;
+    var W=640,H=300,bw=Math.min(60,(W-40)/k),svg='<svg viewBox="0 0 '+W+' '+(H+40)+'" style="width:100%">';
+    prices.forEach(function(p,i){var h=p/P0*H;svg+='<rect x="'+(30+i*bw+3)+'" y="'+(H-h)+'" width="'+(bw-6)+'" height="'+h+'" rx="6" fill="url(#gg)" style="animation:in .5s both;animation-delay:'+(i*.08)+'s"/><text x="'+(30+i*bw+bw/2)+'" y="'+(H-h-8)+'" fill="#f1f5f9" font-size="14" font-weight="700" text-anchor="middle" font-family="Inter">'+p.toFixed(2)+'</text>'});
+    var by=H-bp/P0*H;svg+='<line x1="20" x2="'+(30+k*bw+10)+'" y1="'+by+'" y2="'+by+'" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="7 6"/><text x="'+(30+k*bw+14)+'" y="'+(by+5)+'" fill="#fbbf24" font-size="14" font-weight="700" font-family="Inter">one price '+money(bp)+'</text>';
+    svg+='<text x="30" y="'+(H+28)+'" fill="#8b9bb4" font-size="15" font-family="Inter">Each bar = one buyer, highest price first</text><defs><linearGradient id="gg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#34d3a8"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs></svg>';
+    function rc(cls,t,s,v){return '<div class="rc '+cls+'"><div class="t"><span>'+t+'<small>'+s+'</small></span><span>'+money(v)+'</span></div><div class="b"><i data-w="'+Math.round(v/skim*100)+'"></i></div></div>'}
+    $('main').innerHTML='<span class="kicker"><i></i>Sold out · Results</span><br><h1 class="logo">This is your demand curve</h1>'+
+      '<div class="rev"><div class="box"><h3>What each buyer paid</h3>'+svg+'</div><div class="box"><h3>Revenue from the same '+k+' buyer'+(k>1?'s':'')+'</h3>'+
+      rc('r1','Low price for everyone','Penetration: everyone pays '+money(pmin),pen)+
+      rc('r2','Best single price','Everyone pays '+money(bp)+', '+bk+' buyer'+(bk>1?'s':''),best)+
+      rc('r3','Falling price','Skimming: start high, then lower it',skim)+
+      '</div></div><div class="take">The people who wanted it most bought first, at the highest price. Then the price fell to reach the rest. That is <b>skimming</b>.</div>'+
+      '<div class="next">Next question: we have a price. Where should we sell it?</div>';
+    setTimeout(function(){var is=document.querySelectorAll('.rc .b i');for(var i=0;i<is.length;i++)is[i].style.width=is[i].getAttribute('data-w')+'%'},500);
+  }
+  setInterval(function(){
+    if(revealed)return;
+    if(!ctl||!ctl.aStart){pre();return}
+    var el=now()-ctl.aStart,sold=buyers.length;liveView(el);
+    if(sold>=STOCK||el>=CD+DUR+1200){if(!this.endAt)this.endAt=Date.now();if(Date.now()-this.endAt>1800)reveal()}
+  }.bind({}),100);
+}
+</script></body></html>

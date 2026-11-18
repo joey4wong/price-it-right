@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Swipe to Shop - Price It Right</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css?v=1">
+<style>
+.prog{display:flex;gap:6px;margin:4px 0 14px}.prog i{flex:1;height:6px;border-radius:9px;background:rgba(255,255,255,.12)}.prog i.on{background:linear-gradient(90deg,var(--teal),var(--cyan))}
+.deck{position:relative;height:500px;touch-action:pan-y}
+.sc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;user-select:none;-webkit-user-select:none;transition:transform .35s cubic-bezier(.2,.8,.2,1),opacity .35s}
+.sc .pic{height:200px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.sc .pic img{max-height:200px;max-width:85%;filter:drop-shadow(0 12px 18px rgba(0,0,0,.45))}
+.sc .nm{font:700 23px/1.25 Sora,Inter,sans-serif}
+.sc .ds{color:var(--mut);margin:4px 0 14px;font-size:15px}
+.price{font:800 46px Sora,Inter,sans-serif;letter-spacing:-.01em}
+.price s{font-size:26px;color:var(--mut);font-weight:600;margin-right:10px;text-decoration-thickness:3px;text-decoration-color:var(--red)}
+.sale{display:inline-block;margin-top:8px;font:800 13px Inter,sans-serif;letter-spacing:.1em;color:#4c0519;background:var(--red);padding:5px 12px;border-radius:99px}
+.stamp{position:absolute;top:26px;font:900 30px Sora,sans-serif;padding:4px 14px;border:4px solid;border-radius:12px;opacity:0;transform:rotate(-12deg)}
+.stamp.buy{left:24px;color:var(--teal)}.stamp.pass{right:24px;color:var(--red);transform:rotate(12deg)}
+.btns{display:flex;gap:14px;margin-top:16px}
+.btns button{flex:1;font:800 21px Sora,Inter,sans-serif;padding:17px;border-radius:18px;cursor:pointer;border:2px solid}
+.bpass{background:rgba(251,113,133,.12);border-color:rgba(251,113,133,.6)!important;color:#fecdd3}
+.bbuy{background:rgba(52,211,168,.16);border-color:rgba(52,211,168,.7)!important;color:#b6f5e3}
+.menu{width:100%;display:flex;flex-direction:column;gap:10px;margin-top:6px}
+.menu button{display:flex;justify-content:space-between;align-items:center;width:100%;font:700 19px Inter,sans-serif;color:var(--ink);background:rgba(255,255,255,.07);border:2px solid var(--line);border-radius:16px;padding:14px 18px;cursor:pointer}
+.menu button span{font:800 21px Sora,sans-serif}
+.menu button.none{justify-content:center;color:var(--mut);font-weight:600;font-size:16px;padding:11px}
+.q{color:var(--teal);font-weight:600;margin-bottom:6px}
+/* board */
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.chip{padding:10px 16px;border-radius:14px;background:var(--glass);border:1px solid var(--line);font:700 20px Sora,sans-serif;animation:in .4s both}
+.chip small{font:600 14px Inter,sans-serif;color:var(--mut);margin-left:8px}.chip.done{border-color:rgba(52,211,168,.6)}.chip.done small{color:var(--teal)}
+.bhead{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
+.reveal{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:22px}
+.exp{background:var(--glass);border:1px solid var(--line);border-radius:22px;padding:20px;animation:in .6s both}
+.exp:nth-child(2){animation-delay:.25s}.exp:nth-child(3){animation-delay:.5s}
+.exp h3{margin:0 0 4px;font:800 22px Sora,sans-serif}.exp .lab{color:var(--mut);font-size:15px;margin-bottom:14px;min-height:40px}
+.bar{margin:10px 0}.bar .t{display:flex;justify-content:space-between;font-weight:700;font-size:17px;margin-bottom:6px}.bar .t small{color:var(--mut);font-weight:500}
+.bar .b{height:16px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}.bar .b i{display:block;height:100%;width:0;border-radius:99px;transition:width 1.2s cubic-bezier(.2,.8,.2,1)}
+.ga i{background:linear-gradient(90deg,#64748b,#94a3b8)}.gb i{background:linear-gradient(90deg,var(--teal),var(--cyan))}
+.verdict{margin-top:14px;padding:10px 12px;border-radius:12px;font-weight:600;font-size:15px}
+.verdict.y{background:rgba(52,211,168,.14);color:#b6f5e3}.verdict.n{background:rgba(251,191,36,.12);color:#fde68a}
+.concept{margin-top:12px;font-size:15px;line-height:1.4;color:var(--ink)}.concept b{color:var(--teal)}
+.big-title{font:800 40px Sora,sans-serif;margin:26px 0 0;animation:in .5s both}
+@media(max-width:900px){.reveal{grid-template-columns:1fr}}
+</style></head><body><div id="wrap"></div>
+<script src="shared.js?v=1"></script>
+<script>
+var BOARD=location.hash==='#board';
+var SWP=ROOM+'__swipe';
+var CARDS=[
+ {k:'ld',tims:1,nm:'Tims Reserve Cold Brew',ds:'Single 355 mL can',pr:function(g){return g?'$4.00':'$3.99'}},
+ {k:'f1',img:'q1.png',nm:'Norse Nitro Green Tea',ds:'12-pack of 355 mL cans',pr:function(){return '$47.99'}},
+ {k:'ref',tims:4,nm:'Tims Reserve Cold Brew',ds:'4-pack',pr:function(g){return g?'<s>$17.99</s>$13.49<br><span class="sale">SALE</span>':'$13.49'}},
+ {k:'f2',img:'q2.png',nm:'lululemon Everywhere Belt Bag',ds:'1 L',pr:function(){return '$44'}},
+ {k:'cmp',menu:1,nm:'Tims Reserve Cold Brew',ds:'Which one would you buy?'},
+ {k:'f3',img:'q3.png',nm:'Stanley Quencher H2.0',ds:'40 oz tumbler',pr:function(){return '$59'}}
+];
+var wrap=$('wrap');
+if(BOARD)board();else player();
+
+/* ---------------- player ---------------- */
+function player(){
+  follow('swipe');
+  var st=JSON.parse(localStorage.getItem('pir_sw_'+ROOM)||'null');
+  if(st&&st.pid){resume(st);return}
+  var n=myName();
+  wrap.innerHTML='<span class="kicker"><i></i>Round 2</span><br><h1 class="logo">Swipe to Shop</h1>'+
+   '<p class="sub">You are shopping. For each item, would you buy it at this price? Swipe right to buy, left to pass. No right or wrong answers.</p>'+
+   '<div class="card"><input id="nm" placeholder="Your name" maxlength="20" autocomplete="off" value="'+esc(n)+'"><button class="main" id="go">Start shopping</button></div>';
+  $('go').onclick=function(){
+    var v=$('nm').value.trim()||'Player';setName(v);$('go').disabled=true;
+    api(SWP).then(function(d){
+      var idx=d?Object.keys(d).length:0;
+      var g={ld:idx%2,ref:((idx>>1)+idx)%2,cmp:(idx>>1)%2};
+      var s={pid:pid(),name:v,g:g,a:{},i:0};
+      localStorage.setItem('pir_sw_'+ROOM,JSON.stringify(s));
+      return api(SWP+'/'+s.pid,'PUT',rec({name:v,g:g,a:{}})).then(function(){resume(s)});
+    }).catch(function(){$('go').disabled=false});
+  };
+}
+function save(s){localStorage.setItem('pir_sw_'+ROOM,JSON.stringify(s))}
+function resume(s){
+  if(s.i>=CARDS.length){thanks();return}
+  var c=CARDS[s.i],g=s.g[c.k]||0,html;
+  var pic=c.img?'<img src="'+c.img+'" alt="">':timsSVG(c.tims||1,c.tims===4?110:190);
+  if(c.menu){
+    var opts=[['single','Single can','$3.99'],['four','4-pack','$13.49']];
+    if(g)opts.push(['twelve','12-pack','$36.99']);
+    html='<div class="sc"><div class="pic" style="height:140px">'+timsSVG(g?12:4,g?130:90)+'</div><div class="nm">'+c.nm+'</div><div class="ds">'+c.ds+'</div><div class="menu">'+
+      opts.map(function(o){return '<button data-v="'+o[0]+'">'+o[1]+'<span>'+o[2]+'</span></button>'}).join('')+'<button class="none" data-v="none">None of these</button></div></div>';
+  }else{
+    html='<div class="sc" id="sc"><div class="stamp buy" id="sb">BUY</div><div class="stamp pass" id="sp">PASS</div><div class="pic">'+pic+'</div><div class="nm">'+c.nm+'</div><div class="ds">'+c.ds+'</div><div class="price">'+c.pr(g)+'</div></div>';
+  }
+  var bars='';for(var i=0;i<CARDS.length;i++)bars+='<i class="'+(i<s.i?'on':'')+'"></i>';
+  wrap.innerHTML='<div class="prog">'+bars+'</div><div class="card"><div class="deck fade" id="deck">'+html+'</div>'+
+    (c.menu?'':'<div class="btns"><button class="bpass" id="bp">Pass</button><button class="bbuy" id="bb">Buy</button></div>')+'</div>'+
+    '<p class="hint">'+(c.menu?'Tap one option.':'Swipe right to buy, left to pass.')+'</p>';
+  function answer(v){
+    if(s.lock)return;s.lock=true;
+    s.a[c.k]=v;s.i++;var done=s.i>=CARDS.length;delete s.lock;save(s);
+    var p={};p['a/'+c.k]=v;p.q=s.i;p.done=done;
+    api(SWP+'/'+s.pid,'PATCH',p).catch(function(){});
+    setTimeout(function(){resume(s)},c.menu?150:330);
+  }
+  if(c.menu){var bs=wrap.querySelectorAll('.menu button');for(var b=0;b<bs.length;b++)bs[b].onclick=function(){this.style.borderColor='#34d3a8';answer(this.getAttribute('data-v'))};return}
+  var sc=$('sc'),x0=null,dx=0;
+  function fly(dir){sc.style.transform='translateX('+(dir*600)+'px) rotate('+(dir*25)+'deg)';sc.style.opacity=0;answer(dir>0?1:0)}
+  $('bb').onclick=function(){fly(1)};$('bp').onclick=function(){fly(-1)};
+  sc.addEventListener('pointerdown',function(e){x0=e.clientX;dx=0;sc.style.transition='none';sc.setPointerCapture(e.pointerId)});
+  sc.addEventListener('pointermove',function(e){if(x0===null)return;dx=e.clientX-x0;sc.style.transform='translateX('+dx+'px) rotate('+(dx/18)+'deg)';$('sb').style.opacity=Math.max(0,dx/100);$('sp').style.opacity=Math.max(0,-dx/100)});
+  sc.addEventListener('pointerup',function(){if(x0===null)return;x0=null;sc.style.transition='';if(Math.abs(dx)>90)fly(dx>0?1:-1);else{sc.style.transform='';$('sb').style.opacity=0;$('sp').style.opacity=0}});
+}
+function thanks(){
+  wrap.innerHTML='<div class="card center fade" style="margin-top:40px"><div style="font-size:64px">🛍️</div><h1 class="logo">All done!</h1><p class="sub">Look at the big screen. Something interesting is about to happen.</p></div>';
+}
+
+/* ---------------- board ---------------- */
+function board(){
+  wrap.className='wide';
+  wrap.innerHTML=stepsHTML('swipe')+'<div class="bhead"><div><span class="kicker"><i></i>Round 2</span><br><h1 class="logo">Swipe to Shop</h1><p class="sub" style="margin:0">Would you buy it at this price? Swipe right to buy, left to pass.</p></div>'+
+  '<div><span class="pill"><b id="np">0</b>Shopping</span> <span class="pill"><b id="nd">0</b>Done</span></div></div>'+
+  '<div id="body"><div class="chips" id="chips"></div><div style="margin-top:26px"><button class="big" id="rv">Reveal results</button></div></div>'+
+  '<div class="tools"><button onclick="goBoard(\'auction\')">Next round: Falling Price</button><button onclick="resetAll()">Reset all rounds</button></div>';
+  var data=null,revealed=false;
+  function tick(){api(SWP).then(function(d){data=d||{};if(!revealed)live();else drawReveal(false)}).catch(function(){})}
+  function list(){var a=[];for(var k in data)if(data[k]&&data[k].name!==undefined)a.push(data[k]);return a}
+  function live(){
+    var a=list();$('np').textContent=a.length;$('nd').textContent=a.filter(function(p){return p.done}).length;
+    $('chips').innerHTML=a.map(function(p){return '<span class="chip'+(p.done?' done':'')+'">'+esc(p.name)+'<small>'+(p.done?'done':(p.q||0)+' / '+CARDS.length)+'</small></span>'}).join('')||'<span class="sub">Waiting for shoppers...</span>';
+  }
+  $('rv').onclick=function(){revealed=true;drawReveal(true)};
+  function stat(a,k,test){var r=[{y:0,n:0},{y:0,n:0}];a.forEach(function(p){var v=p.a&&p.a[k];if(v===undefined||!p.g)return;var g=p.g[k]?1:0;r[g].n++;if(test(v))r[g].y++});return r}
+  function pct(o){return o.n?Math.round(o.y/o.n*100):0}
+  function panel(t,lab,la,lb,r,expectB,concept){
+    var a=pct(r[0]),b=pct(r[1]),ok=r[0].n&&r[1].n&&(expectB?b>a:a>b);
+    return '<div class="exp"><h3>'+t+'</h3><div class="lab">'+lab+'</div>'+
+      '<div class="bar ga"><div class="t"><span>'+la+'</span><span>'+a+'% <small>('+r[0].y+' of '+r[0].n+')</small></span></div><div class="b"><i data-w="'+a+'"></i></div></div>'+
+      '<div class="bar gb"><div class="t"><span>'+lb+'</span><span>'+b+'% <small>('+r[1].y+' of '+r[1].n+')</small></span></div><div class="b"><i data-w="'+b+'"></i></div></div>'+
+      '<div class="verdict '+(ok?'y':'n')+'">'+(ok?'It worked on this room.':'Not this time. With a small group, results can go either way.')+'</div>'+
+      '<div class="concept">'+concept+'</div></div>';
+  }
+  function drawReveal(first){
+    var a=list();
+    var html='<div class="big-title">Surprise: you were in a secret experiment.</div><p class="sub" style="margin-top:6px">Half of you saw one version, half saw another. Same product. Here is what you bought.</p><div class="reveal">'+
+      panel('$3.99 vs $4.00','Same can. Half saw $3.99, half saw $4.00. Who bought it?','Saw $4.00','Saw $3.99',(function(r){return [r[1],r[0]]})(stat(a,'ld',function(v){return v===1})),true,'<b>Left-digit effect.</b> We read the first digit and stop. A 3 feels much cheaper than a 4.')+
+      panel('$13.49 vs <s style="color:#8b9bb4">$17.99</s> $13.49','Same 4-pack, same price. Half saw a crossed-out "was" price.','Plain $13.49','Was $17.99, now $13.49',stat(a,'ref',function(v){return v===1}),true,'<b>Reference pricing.</b> We judge a price against another number. The old price makes it feel like a deal.')+
+      panel('Who picked the 4-pack?','Half saw single + 4-pack. Half also saw a 12-pack.','Menu with 2 options','Menu with a 12-pack added',stat(a,'cmp',function(v){return v==='four'}),true,'<b>Compromise effect.</b> Add a bigger option and the middle one suddenly feels like the safe choice.')+
+      '</div>';
+    $('body').innerHTML=html;
+    setTimeout(function(){var is=document.querySelectorAll('.b i');for(var i=0;i<is.length;i++)is[i].style.width=is[i].getAttribute('data-w')+'%'},first?700:0);
+    if(!first){var is=document.querySelectorAll('.b i');for(var j=0;j<is.length;j++){is[j].style.transition='none';is[j].style.width=is[j].getAttribute('data-w')+'%'}}
+  }
+  tick();setInterval(function(){if(!revealed)tick()},1000);
+}
+</script></body></html>
