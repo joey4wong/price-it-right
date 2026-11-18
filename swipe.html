@@ -4,12 +4,13 @@
 <title>Swipe to Shop - Price It Right</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared.css?v=1">
+<link rel="stylesheet" href="shared.css?v=2">
 <style>
 .prog{display:flex;gap:6px;margin:4px 0 14px}.prog i{flex:1;height:6px;border-radius:9px;background:rgba(255,255,255,.12)}.prog i.on{background:linear-gradient(90deg,var(--teal),var(--cyan))}
 .deck{position:relative;height:500px;touch-action:pan-y}
 .sc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;user-select:none;-webkit-user-select:none;transition:transform .35s cubic-bezier(.2,.8,.2,1),opacity .35s}
 .sc .pic{height:200px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.sc .pic,.sc .pic *{pointer-events:none;-webkit-user-drag:none}
 .sc .pic img{max-height:200px;max-width:85%;filter:drop-shadow(0 12px 18px rgba(0,0,0,.45))}
 .sc .nm{font:700 23px/1.25 Sora,Inter,sans-serif}
 .sc .ds{color:var(--mut);margin:4px 0 14px;font-size:15px}
@@ -45,7 +46,7 @@
 .big-title{font:800 40px Sora,sans-serif;margin:26px 0 0;animation:in .5s both}
 @media(max-width:900px){.reveal{grid-template-columns:1fr}}
 </style></head><body><div id="wrap"></div>
-<script src="shared.js?v=1"></script>
+<script src="shared.js?v=2"></script>
 <script>
 var BOARD=location.hash==='#board';
 var SWP=ROOM+'__swipe';
@@ -84,7 +85,7 @@ function save(s){localStorage.setItem('pir_sw_'+ROOM,JSON.stringify(s))}
 function resume(s){
   if(s.i>=CARDS.length){thanks();return}
   var c=CARDS[s.i],g=s.g[c.k]||0,html;
-  var pic=c.img?'<img src="'+c.img+'" alt="">':timsSVG(c.tims||1,c.tims===4?110:190);
+  var pic=c.img?'<img src="'+c.img+'" alt="" draggable="false">':timsSVG(c.tims||1,c.tims===4?110:190);
   if(c.menu){
     var opts=[['single','Single can','$3.99'],['four','4-pack','$13.49']];
     if(g)opts.push(['twelve','12-pack','$36.99']);
@@ -110,6 +111,7 @@ function resume(s){
   $('bb').onclick=function(){fly(1)};$('bp').onclick=function(){fly(-1)};
   sc.addEventListener('pointerdown',function(e){x0=e.clientX;dx=0;sc.style.transition='none';sc.setPointerCapture(e.pointerId)});
   sc.addEventListener('pointermove',function(e){if(x0===null)return;dx=e.clientX-x0;sc.style.transform='translateX('+dx+'px) rotate('+(dx/18)+'deg)';$('sb').style.opacity=Math.max(0,dx/100);$('sp').style.opacity=Math.max(0,-dx/100)});
+  sc.addEventListener('pointercancel',function(){x0=null;sc.style.transition='';sc.style.transform=''});
   sc.addEventListener('pointerup',function(){if(x0===null)return;x0=null;sc.style.transition='';if(Math.abs(dx)>90)fly(dx>0?1:-1);else{sc.style.transform='';$('sb').style.opacity=0;$('sp').style.opacity=0}});
 }
 function thanks(){
@@ -146,7 +148,7 @@ function board(){
     var html='<div class="big-title">Surprise: you were in a secret experiment.</div><p class="sub" style="margin-top:6px">Half of you saw one version, half saw another. Same product. Here is what you bought.</p><div class="reveal">'+
       panel('$3.99 vs $4.00','Same can. Half saw $3.99, half saw $4.00. Who bought it?','Saw $4.00','Saw $3.99',(function(r){return [r[1],r[0]]})(stat(a,'ld',function(v){return v===1})),true,'<b>Left-digit effect.</b> We read the first digit and stop. A 3 feels much cheaper than a 4.')+
       panel('$13.49 vs <s style="color:#8b9bb4">$17.99</s> $13.49','Same 4-pack, same price. Half saw a crossed-out "was" price.','Plain $13.49','Was $17.99, now $13.49',stat(a,'ref',function(v){return v===1}),true,'<b>Reference pricing.</b> We judge a price against another number. The old price makes it feel like a deal.')+
-      panel('Who picked the 4-pack?','Half saw single + 4-pack. Half also saw a 12-pack.','Menu with 2 options','Menu with a 12-pack added',stat(a,'cmp',function(v){return v==='four'}),true,'<b>Compromise effect.</b> Add a bigger option and the middle one suddenly feels like the safe choice.')+
+      panel('Who picked the 4-pack?','Half saw single + 4-pack. Half also saw a 12-pack.','Menu with 2 options','With a 12-pack added',stat(a,'cmp',function(v){return v==='four'}),true,'<b>Compromise effect.</b> Add a bigger option and the middle one suddenly feels like the safe choice.')+
       '</div>';
     $('body').innerHTML=html;
     setTimeout(function(){var is=document.querySelectorAll('.b i');for(var i=0;i<is.length;i++)is[i].style.width=is[i].getAttribute('data-w')+'%'},first?700:0);

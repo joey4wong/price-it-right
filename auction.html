@@ -4,7 +4,7 @@
 <title>Falling Price - Price It Right</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared.css?v=1">
+<link rel="stylesheet" href="shared.css?v=2">
 <style>
 .pnum{font:800 92px/1 Sora,Inter,sans-serif;letter-spacing:-.03em;font-variant-numeric:tabular-nums;margin:10px 0}
 .wide .pnum{font-size:190px}
@@ -32,7 +32,7 @@
 .next{margin-top:16px;color:var(--mut);font-size:18px}
 @media(max-width:900px){.lay,.rev{grid-template-columns:1fr}.wide .pnum{font-size:110px}}
 </style></head><body><div id="wrap"></div>
-<script src="shared.js?v=1"></script>
+<script src="shared.js?v=2"></script>
 <script>
 var BOARD=location.hash==='#board';
 var AUC=ROOM+'__auction';
@@ -142,7 +142,7 @@ function board(){
     var by=H-bp/P0*H;svg+='<line x1="20" x2="'+(30+k*bw+10)+'" y1="'+by+'" y2="'+by+'" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="7 6"/><text x="'+(30+k*bw+14)+'" y="'+(by+5)+'" fill="#fbbf24" font-size="14" font-weight="700" font-family="Inter">one price '+money(bp)+'</text>';
     svg+='<text x="30" y="'+(H+28)+'" fill="#8b9bb4" font-size="15" font-family="Inter">Each bar = one buyer, highest price first</text><defs><linearGradient id="gg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#34d3a8"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs></svg>';
     function rc(cls,t,s,v){return '<div class="rc '+cls+'"><div class="t"><span>'+t+'<small>'+s+'</small></span><span>'+money(v)+'</span></div><div class="b"><i data-w="'+Math.round(v/skim*100)+'"></i></div></div>'}
-    $('main').innerHTML='<span class="kicker"><i></i>Sold out · Results</span><br><h1 class="logo">This is your demand curve</h1>'+
+    $('main').innerHTML='<span class="kicker"><i></i>Auction closed · Results</span><br><h1 class="logo">This is your demand curve</h1>'+
       '<div class="rev"><div class="box"><h3>What each buyer paid</h3>'+svg+'</div><div class="box"><h3>Revenue from the same '+k+' buyer'+(k>1?'s':'')+'</h3>'+
       rc('r1','Low price for everyone','Penetration: everyone pays '+money(pmin),pen)+
       rc('r2','Best single price','Everyone pays '+money(bp)+', '+bk+' buyer'+(bk>1?'s':''),best)+
