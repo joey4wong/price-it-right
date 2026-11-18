@@ -56,7 +56,7 @@ function player(){
     var v=$('nm').value.trim()||'Player';setName(v);$('go').disabled=true;
     api(SWP).then(function(d){
       var idx=d?Object.keys(d).length:0;
-      var g={ld:idx%2,ref:((idx>>1)+idx)%2,cmp:(idx>>1)%2};
+      var g={ld:Math.random()<.5?1:0,ref:Math.random()<.5?1:0,cmp:Math.random()<.5?1:0};
       var s={pid:pid(),name:v,g:g,a:{},i:0};
       localStorage.setItem('pir_sw4_'+ROOM,JSON.stringify(s));
       return api(SWP+'/'+s.pid,'PUT',rec({name:v,g:g,a:{}})).then(function(){resume(s)});
@@ -80,9 +80,10 @@ function resume(s){
   wrap.innerHTML='<div class="prog">'+bars+'</div><div class="card"><div class="deck fade" id="deck">'+html+'</div>'+
     (c.menu?'':'<div class="btns"><button class="bpass" id="bp">Pass</button><button class="bbuy" id="bb">Buy</button></div>')+'</div>'+
     '<p class="hint">'+(c.menu?'Tap one option.':'Swipe right to buy, left to pass.')+'</p>';
+  var locked=false;
   function answer(v){
-    if(s.lock)return;s.lock=true;
-    s.a[c.k]=v;s.i++;var done=s.i>=CARDS.length;delete s.lock;save(s);
+    if(locked)return;locked=true;
+    s.a[c.k]=v;s.i++;var done=s.i>=CARDS.length;save(s);
     var p={};p['a/'+c.k]=v;p.q=s.i;p.done=done;
     api(SWP+'/'+s.pid,'PATCH',p).catch(function(){});
     setTimeout(function(){resume(s)},c.menu?150:330);

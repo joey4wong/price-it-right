@@ -40,14 +40,14 @@ function intro(){
 function run(){
   wrap.innerHTML='<div class="center"><span class="kicker"><i></i>Game 3 · Falling Price</span><div style="margin-top:14px">'+TIX+'</div>'+
    '<div class="sub" style="margin:8px 0 0">Front-row concert ticket</div><div class="pnum" id="pn">'+money(P0)+'</div><div style="margin-top:10px"><button id="buy" disabled style="opacity:.4">BUY</button></div></div>';
-  var t0=Date.now(),done=false;
+  var t0=Date.now(),done=false,shown=P0;
   function finish(o){if(done)return;done=true;clearInterval(tm);st.res=o;save();
     api(AUC+'/'+st.pid,'PATCH',o.p?{p:o.p,done:true,q:1}:{missed:true,done:true,q:1}).catch(function(){});result()}
-  $('buy').onclick=function(){var el=Date.now()-t0;if(el>=CD)finish({p:priceAt(el)})};
+  $('buy').onclick=function(){var el=Date.now()-t0;if(el>=CD)finish({p:shown})};
   var tm=setInterval(function(){var el=Date.now()-t0,pn=$('pn');
     if(el<CD){pn.textContent=Math.ceil((CD-el)/1000);pn.className='pnum cd';return}
     var b=$('buy');if(b.disabled){b.disabled=false;b.style.opacity=1}
-    var p=priceAt(el);pn.textContent=money(p);pn.className='pnum';if(p<=st.cut)finish({missed:true})},50);
+    var p=priceAt(el);shown=p;pn.textContent=money(p);pn.className='pnum';if(p<=st.cut)finish({missed:true})},50);
 }
 function result(){
   var r=st.res;

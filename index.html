@@ -187,7 +187,7 @@ function start(){
   };
 }
 function show(){
-  navShow(false);
+  navShow(false);try{window.scrollTo(0,0)}catch(e){}
   var it=ITEMS[state.i];state.locked=false;
   var opts=it.o.map(function(o,k){return '<button class="opt" data-k="'+k+'">'+esc(o)+'</button>'}).join('');
   el('<div class="top"><span>Question '+(state.i+1)+' / '+TOTAL+'</span><span>Correct '+state.score+'</span></div>'+
@@ -217,7 +217,7 @@ function answer(k){
   $('fb').innerHTML='';
   var W=[['c','Cost to make it'],['p','Compared with similar products'],['u','What it is worth to me']];
   var wb=document.createElement('div');wb.className='why';wb.innerHTML='<div class="wq">How did you guess?</div>'+W.map(function(w){return '<button data-w="'+w[0]+'">'+w[1]+'</button>'}).join('');
-  $('fb').appendChild(wb);
+  $('fb').appendChild(wb);try{wb.scrollIntoView({behavior:'smooth',block:'end'})}catch(e){}
   var wbs=wb.querySelectorAll('button');for(var j=0;j<wbs.length;j++)wbs[j].onclick=function(){if(state.wlock)return;state.wlock=true;state.log[state.log.length-1].why=this.getAttribute('data-w');this.className='on';sync(state.log.length>=TOTAL);save(false);setTimeout(function(){state.wlock=false;state.i++;if(state.i<TOTAL)show();else finish()},250)};
 }
 function finish(){
