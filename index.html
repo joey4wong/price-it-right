@@ -57,7 +57,7 @@ var ITEMS=[
  {e:"\uD83D\uDCF1",img:"q7.png",n:"iPhone Duo",d:"256 GB, Apple's first foldable",o:["$1,999","$2,999","$3,999"],a:1,real:"$2,999"},
  {e:"\uD83E\uDDE5",img:"q8.png",n:"Canada Goose Expedition Parka",d:"Men's",o:["$995","$1,495","$1,995"],a:2,real:"$1,995"}
 ];
-var TOTAL=ITEMS.length,SECS=8,FEEDBACK_MS=1400;
+var TOTAL=ITEMS.length,SECS=12,FEEDBACK_MS=1400;
 var DB='https://price-it-right-game-default-rtdb.firebaseio.com';
 var ROOM=(new URLSearchParams(location.search).get('room')||'class').replace(/[^A-Za-z0-9_-]/g,'').slice(0,30)||'class';
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;")}
